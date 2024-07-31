@@ -86,7 +86,7 @@ const changePasswordType = () => {
       <ErrorMessage v-if="showError" :message="errorMessage" />
       <button
         type="submit"
-        class="mt-2 w-fit rounded-md bg-light-text px-3 py-1 text-light-background hover:bg-light-text/80"
+        class="bg-light-green-500 hover:bg-light-green-600 mt-2 w-fit rounded-md px-3 py-1 font-semibold text-light-background"
       >
         Sign up
       </button>
