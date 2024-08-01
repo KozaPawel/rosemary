@@ -1,13 +1,13 @@
 <script setup>
 import { onMounted, ref } from 'vue';
 import { supabase } from '@/supabase';
-
 import Navbar from '@/components/Navbar.vue';
 
 const userInfo = ref(null);
 const name = ref('');
 const url = ref('');
 const rec = ref(null);
+const importedRecipe = ref('');
 
 const getProfile = async () => {
   const {
@@ -55,6 +55,14 @@ const addRecipe = async (user_id) => {
   url.value = '';
 };
 
+const importRecipe = async () => {
+  const { data, error } = await supabase.functions.invoke('scrap', {
+    body: { url: url.value },
+  });
+
+  importedRecipe.value = data;
+};
+
 onMounted(() => {
   getProfile();
   fetchRecipes();
@@ -65,29 +73,16 @@ onMounted(() => {
   <div class="h-screen w-screen">
     <Navbar />
     <div>
-      <p>{{ rec }}</p>
+      <p>{{ importedRecipe }}</p>
     </div>
-    <form
-      @submit.prevent="addRecipe(userInfo.identities[0].user_id)"
-      class="flex w-fit flex-col gap-2"
-    >
+    <form @submit.prevent="importRecipe()" class="flex w-fit flex-col gap-2">
       <div class="flex flex-col">
-        <label for="email">name</label>
-        <input
-          v-model="name"
-          id="email"
-          class="rounded-md border border-light-text bg-light-background px-2 py-1 placeholder:text-gray-500"
-          type="text"
-          required
-        />
-      </div>
-      <div class="flex flex-col">
-        <label for="password">ulr</label>
+        <label for="url">Url</label>
         <input
           v-model="url"
-          id="password"
-          class="w-full rounded-md border border-light-text bg-light-background px-2 py-1 placeholder:text-gray-500"
-          type="text"
+          id="url"
+          class="rounded-md border border-light-text bg-light-background px-2 py-1 placeholder:text-gray-500"
+          type="url"
           required
         />
       </div>
@@ -95,7 +90,7 @@ onMounted(() => {
         type="submit"
         class="mt-2 w-fit rounded-md bg-light-text px-3 py-1 text-light-background hover:bg-light-text/80"
       >
-        send
+        Import
       </button>
     </form>
   </div>

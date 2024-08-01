@@ -1,35 +1,42 @@
 # rosemary
 
-This template should help get you started developing with Vue 3 in Vite.
+Edge function
 
-## Recommended IDE Setup
-
-[VSCode](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur).
-
-## Customize configuration
-
-See [Vite Configuration Reference](https://vitejs.dev/config/).
-
-## Project Setup
-
-```sh
-npm install
 ```
+import "jsr:@supabase/functions-js/edge-runtime.d.ts"
 
-### Compile and Hot-Reload for Development
+Deno.serve(async (req) => {
+  console.log(req.method)
+  if (req.method === 'OPTIONS') {
+      return new Response(
+          'ok',
+          {
+              headers: {
+                  "Access-Control-Allow-Origin": "*",
+                  "Access-Control-Allow-Methods": "POST",
+                  "Access-Control-Expose-Headers": "Content-Length, X-JSON",
+                  "Access-Control-Allow-Headers": "apikey, X-Client-Info, Content-Type, Authorization, Accept, Accept-Language, X-Authorization",
+              }
+          }
+      );
+  }
+  else {
+      const { url } = await req.json();
+      const response = await fetch(url)
+      const data = await response.text()
+      return new Response(
+          JSON.stringify(data),
+          {
+              headers: {
+                  "Content-Type": "application/json",
+                  "Access-Control-Allow-Origin": "*",
+                  "Access-Control-Allow-Methods": "POST",
+                  "Access-Control-Expose-Headers": "Content-Length, X-JSON",
+                  "Access-Control-Allow-Headers": "apikey, X-Client-Info, Content-Type, Authorization, Accept, Accept-Language, X-Authorization",
+              }
+          }
+      );
+  }
+})
 
-```sh
-npm run dev
-```
-
-### Compile and Minify for Production
-
-```sh
-npm run build
-```
-
-### Lint with [ESLint](https://eslint.org/)
-
-```sh
-npm run lint
 ```
