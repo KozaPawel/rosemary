@@ -18,11 +18,11 @@ const props = defineProps({
       <div class="mt-2 w-fit hover:cursor-pointer">
         <text @click="router.push('signup')" v-if="props.isLoginForm" class="group font-medium"
           >Don't have and account?
-          <text class="text-light-green-600 group-hover:underline">Sign up</text></text
+          <text class="text-light-green-500 group-hover:underline">Sign up</text></text
         >
         <text @click="router.push('login')" v-else class="group font-medium"
           >Already have an account?
-          <text class="text-light-green-600 group-hover:underline">Log in</text></text
+          <text class="text-light-green-500 group-hover:underline">Log in</text></text
         >
       </div>
     </div>
