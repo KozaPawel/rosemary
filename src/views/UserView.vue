@@ -1,13 +1,16 @@
 <script setup>
 import { onMounted, ref } from 'vue';
 import { supabase } from '@/supabase';
+import * as cheerio from 'cheerio';
+
 import Navbar from '@/components/Navbar.vue';
 
 const userInfo = ref(null);
 const name = ref('');
 const url = ref('');
 const rec = ref(null);
-const importedRecipe = ref('');
+const fetchedRecipe = ref('');
+const cleanRecipe = ref([]);
 
 const getProfile = async () => {
   const {
@@ -55,12 +58,69 @@ const addRecipe = async (user_id) => {
   url.value = '';
 };
 
-const importRecipe = async () => {
+const fetchRecipe = async () => {
   const { data, error } = await supabase.functions.invoke('scrap', {
     body: { url: url.value },
   });
 
-  importedRecipe.value = data;
+  fetchedRecipe.value = data;
+
+  getRecipeData();
+};
+
+const getRecipeData = async () => {
+  const $ = cheerio.load(fetchedRecipe.value);
+
+  let jsonld = JSON.parse($('script[type="application/ld+json"]').html());
+  if (jsonld == null) {
+    jsonld = '';
+  }
+
+  const ingredients = [];
+  let instructions = [];
+
+  const title =
+    jsonld.name || $('meta[property="og:title"]').attr('content') || $('*[itemprop="name"]').text();
+  const description =
+    jsonld.description ||
+    $('meta[property="og:description"]').attr('content') ||
+    $('*[itemprop="description"]').text();
+  const image = $('meta[property="og:image"]').attr('content');
+  const servings =
+    jsonld.recipeYield ||
+    $('meta[itemprop="recipeYield"]').attr('content') ||
+    $('*[itemprop="recipeYield"]').text();
+  const prepTime = jsonld.prepTime || $('meta[itemprop="prepTime"]').attr('content');
+  const cookTime = jsonld.cookTime || $('meta[itemprop="cookTime"]').attr('content');
+
+  if (jsonld.recipeIngredient) {
+    jsonld.recipeIngredient.forEach((ingredient) => {
+      ingredients.push(ingredient);
+    });
+  } else {
+    $('*[itemprop="recipeIngredient"]').each((index, element) => {
+      ingredients.push($(element).text());
+    });
+  }
+
+  if (jsonld.recipeInstructions) {
+    instructions.push(jsonld.recipeInstructions);
+  } else {
+    $('*[itemprop="recipeInstructions"]').each((index, element) => {
+      instructions.push($(element).text());
+    });
+  }
+
+  cleanRecipe.value = {
+    title,
+    description,
+    image,
+    servings,
+    prepTime,
+    cookTime,
+    ingredients,
+    instructions,
+  };
 };
 
 onMounted(() => {
@@ -73,9 +133,9 @@ onMounted(() => {
   <div class="h-screen w-screen">
     <Navbar />
     <div>
-      <p>{{ importedRecipe }}</p>
+      <text>{{ cleanRecipe }}</text>
     </div>
-    <form @submit.prevent="importRecipe()" class="flex w-fit flex-col gap-2">
+    <form @submit.prevent="fetchRecipe()" class="flex w-fit flex-col gap-2">
       <div class="flex flex-col">
         <label for="url">Url</label>
         <input
