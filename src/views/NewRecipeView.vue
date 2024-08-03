@@ -141,7 +141,7 @@ const getRecipeData = async () => {
             :key="index"
             v-model="cleanRecipe.instructions[index]"
             class="h-32 resize-y rounded-md border border-light-text bg-light-background px-2 py-1 placeholder:text-gray-500"
-          />
+          ></textarea>
         </div>
       </div>
       <Recipe v-else :recipe="cleanRecipe" />
