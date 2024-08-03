@@ -7,6 +7,7 @@ import IconEye from '@/components/icons/IconEye.vue';
 import IconEyeClose from '@/components/icons/IconEyeClose.vue';
 import ErrorMessage from '@/components/ErrorMessage.vue';
 import Auth from '@/components/Auth.vue';
+import LabeledInput from '@/components/LabeledInput.vue';
 
 const router = useRouter();
 const email = ref('');
@@ -49,43 +50,38 @@ const changePasswordType = () => {
   <Auth :is-login-form="true">
     <form @submit.prevent="signInWithPassword()" class="flex flex-col gap-2">
       <h3 class="text-3xl font-bold">Welcome back!</h3>
-      <div class="flex flex-col">
-        <label for="email">Email address</label>
-        <input
-          v-model="email"
-          id="email"
-          class="rounded-md border border-light-text bg-light-background px-2 py-1 placeholder:text-gray-500"
-          :class="{ 'border-red-600': showError }"
-          type="email"
-          placeholder="Enter your email address"
-          required
-        />
-      </div>
-      <div class="flex flex-col">
-        <label for="password">Password</label>
-        <div class="relative flex items-center justify-between">
-          <input
-            v-model="password"
-            id="password"
-            class="w-full rounded-md border border-light-text bg-light-background px-2 py-1 placeholder:text-gray-500"
-            :class="{ 'border-red-600': showError }"
-            :type="passwordType"
-            placeholder="******"
-            required
-          />
-          <button
-            type="button"
-            class="absolute end-2 hover:cursor-pointer"
-            @click.prevent="changePasswordType()"
-          >
-            <component class="size-6" :is="showPassword ? IconEyeClose : IconEye" />
-          </button>
-        </div>
+      <LabeledInput
+        v-model="email"
+        :id="'email'"
+        :label="'Email address'"
+        :required="true"
+        :placeholder="'Enter your email address'"
+        :type="'email'"
+        :error="showError"
+      />
+      <div class="relative">
+        <LabeledInput
+          v-model="password"
+          :id="'password'"
+          :label="'Password'"
+          :required="true"
+          :placeholder="'******'"
+          :type="passwordType"
+          :error="showError"
+          class="relative"
+        ></LabeledInput>
+        <button
+          type="button"
+          class="absolute end-2 top-[1.85rem] hover:cursor-pointer"
+          @click.prevent="changePasswordType()"
+        >
+          <component class="size-6" :is="showPassword ? IconEyeClose : IconEye" />
+        </button>
       </div>
       <ErrorMessage v-if="showError" :message="errorMessage" />
       <button
         type="submit"
-        class="bg-light-green-500 hover:bg-light-green-600 mt-2 w-fit rounded-md px-3 py-1 font-semibold text-light-background"
+        class="mt-2 w-fit rounded-md bg-light-green-500 px-3 py-1 font-semibold text-light-background hover:bg-light-green-600"
       >
         Log in
       </button>

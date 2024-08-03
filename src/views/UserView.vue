@@ -1,6 +1,7 @@
 <script setup>
 import { onMounted, ref } from 'vue';
 import { supabase } from '@/supabase';
+import { RouterLink } from 'vue-router';
 import * as cheerio from 'cheerio';
 
 import Navbar from '@/components/Navbar.vue';
@@ -132,26 +133,35 @@ onMounted(() => {
 <template>
   <div class="h-screen w-screen">
     <Navbar />
-    <div>
-      <text>{{ cleanRecipe }}</text>
-    </div>
-    <form @submit.prevent="fetchRecipe()" class="flex w-fit flex-col gap-2">
-      <div class="flex flex-col">
-        <label for="url">Url</label>
-        <input
-          v-model="url"
-          id="url"
-          class="rounded-md border border-light-text bg-light-background px-2 py-1 placeholder:text-gray-500"
-          type="url"
-          required
-        />
+    <div class="mt-4 px-4 md:px-8">
+      <RouterLink to="/new-recipe">
+        <button
+          class="w-fit rounded-md bg-light-green-500 px-3 py-1 font-semibold text-light-background hover:bg-light-green-600"
+        >
+          Add new recipe
+        </button>
+      </RouterLink>
+      <!-- <div>
+        <text>{{ cleanRecipe }}</text>
       </div>
-      <button
-        type="submit"
-        class="mt-2 w-fit rounded-md bg-light-text px-3 py-1 text-light-background hover:bg-light-text/80"
-      >
-        Import
-      </button>
-    </form>
+      <form @submit.prevent="fetchRecipe()" class="flex w-fit flex-col gap-2">
+        <div class="flex flex-col">
+          <label for="url">Url</label>
+          <input
+            v-model="url"
+            id="url"
+            class="rounded-md border border-light-text bg-light-background px-2 py-1 placeholder:text-gray-500"
+            type="url"
+            required
+          />
+        </div>
+        <button
+          type="submit"
+          class="mt-2 w-fit rounded-md bg-light-text px-3 py-1 text-light-background hover:bg-light-text/80"
+        >
+          Import
+        </button>
+      </form> -->
+    </div>
   </div>
 </template>

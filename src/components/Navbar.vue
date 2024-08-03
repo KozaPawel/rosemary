@@ -1,6 +1,7 @@
 <script setup>
 import { useRouter } from 'vue-router';
 import { supabase } from '@/supabase';
+import { RouterLink } from 'vue-router';
 
 const router = useRouter();
 
@@ -17,11 +18,13 @@ const signOut = async () => {
   <div
     class="flex flex-row items-center justify-between px-4 py-4 shadow shadow-light-text/20 md:px-8"
   >
-    <text class="text-light-green-500 text-2xl font-bold">Rosemary</text>
+    <RouterLink to="/user" class="text-2xl font-bold text-light-green-500 hover:underline">
+      Rosemary
+    </RouterLink>
     <button
       @click="signOut()"
       type="button"
-      class="bg-light-green-500 hover:bg-light-green-600 w-fit rounded-md px-3 py-1 font-semibold text-light-background"
+      class="w-fit rounded-md border border-light-green-500 px-3 py-1 font-semibold text-light-green-500 hover:bg-light-green-500 hover:text-light-background"
     >
       Sign Out
     </button>
