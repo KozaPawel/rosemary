@@ -1,5 +1,5 @@
 <script setup>
-import { ref } from 'vue';
+import { onMounted, ref } from 'vue';
 import { supabase } from '@/supabase';
 import * as cheerio from 'cheerio';
 
@@ -7,10 +7,18 @@ import Navbar from '@/components/Navbar.vue';
 import Recipe from '@/components/Recipe.vue';
 import LabeledInput from '@/components/LabeledInput.vue';
 
+const userInfo = ref(null);
 const url = ref('');
 const fetchedRecipe = ref('');
 const cleanRecipe = ref({});
 const showPreview = ref(false);
+
+const getProfile = async () => {
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+  userInfo.value = session.user;
+};
 
 const fetchRecipe = async () => {
   const { data, error } = await supabase.functions.invoke('scrap', {
@@ -30,8 +38,8 @@ const getRecipeData = async () => {
     jsonld = '';
   }
 
-  const ingredients = [];
-  let instructions = [];
+  let ingredients = '';
+  let instructions = '';
 
   const title =
     $('meta[property="og:title"]').attr('content') || $('*[itemprop="name"]').text() || jsonld.name;
@@ -44,30 +52,64 @@ const getRecipeData = async () => {
     jsonld.recipeYield ||
     $('meta[itemprop="recipeYield"]').attr('content') ||
     $('*[itemprop="recipeYield"]').text();
-  let prepTime = jsonld.prepTime || $('meta[itemprop="prepTime"]').attr('content');
-  let cookTime = jsonld.cookTime || $('meta[itemprop="cookTime"]').attr('content');
+  let prepTime = jsonld.prepTime || $('meta[itemprop="prepTime"]').attr('content') || '';
+  let cookTime = jsonld.cookTime || $('meta[itemprop="cookTime"]').attr('content') || '';
+  const recipeUrl = url.value;
 
   if (jsonld.recipeIngredient) {
-    jsonld.recipeIngredient.forEach((ingredient) => {
-      ingredients.push(ingredient);
+    jsonld.recipeIngredient.forEach((ingredient, index) => {
+      if (index !== 0) ingredients += '\n';
+      ingredients += ingredient;
     });
   } else {
     $('*[itemprop="recipeIngredient"]').each((index, element) => {
-      ingredients.push($(element).text());
+      if (index !== 0) ingredients += '\n';
+      ingredients += $(element).html();
     });
   }
 
   if (jsonld.recipeInstructions) {
-    instructions.push(jsonld.recipeInstructions);
+    instructions = JSON.stringify(jsonld.recipeInstructions);
   } else {
     $('*[itemprop="recipeInstructions"]').each((index, element) => {
-      instructions.push($(element).text());
+      if (index !== 0) instructions += '\n';
+      instructions += $(element)
+        .text()
+        .replace(/(\r\n|\n|\r|\t)/gm, '');
     });
   }
 
   if (!cookTime && prepTime.length > 0) {
     cookTime = prepTime;
     prepTime = '';
+  }
+
+  if (ingredients.length === 0 || instructions.length === 0) {
+    $('div')
+      .find('ul, ol')
+      .each((index, element) => {
+        const hasLink = $(element).find('a').length > 0;
+        if (!hasLink) {
+          $(element)
+            .find('li')
+            .each((index, li) => {
+              const text = $(li)
+                .text()
+                .replace(/(\r\n|\n|\r|\t)/gm, '');
+
+              const ingredientPoints = checkIfIngredient(text);
+              const instructionPoints = checkIfInstruction(text);
+
+              if (ingredientPoints > instructionPoints) {
+                if (index !== 0) ingredients += '\n';
+                ingredients += text;
+              } else {
+                if (index !== 0) instructions += '\n';
+                instructions += text;
+              }
+            });
+        }
+      });
   }
 
   cleanRecipe.value = {
@@ -79,17 +121,72 @@ const getRecipeData = async () => {
     cookTime,
     ingredients,
     instructions,
+    recipeUrl,
   };
 };
+
+const checkIfIngredient = (item) => {
+  let points = 0;
+
+  if (
+    item.charAt(0) === item.charAt(0).toLowerCase() &&
+    item.charAt(0) !== item.charAt(0).toUpperCase()
+  )
+    points += 1;
+  if (item === item.toLowerCase() && item !== item.toUpperCase()) points += 1;
+  if (item.charAt(0) >= '0' && item.charAt(0) <= '9') points += 1;
+  if (item.length < 60) points += 1;
+
+  return points;
+};
+
+const checkIfInstruction = (item) => {
+  let points = 0;
+  const endsWithPunctuation = !!item.match(/[,.:!?]$/);
+  const hasOtherUpperCases = !!item.slice(1).match(/[A-Z]/);
+
+  if (
+    item.charAt(0) !== item.charAt(0).toLowerCase() &&
+    item.charAt(0) === item.charAt(0).toUpperCase()
+  )
+    points += 1;
+  if (item.length > 60) points += 1;
+  if (endsWithPunctuation) points += 1;
+  if (hasOtherUpperCases) points += 1;
+
+  return points;
+};
+
+const addRecipe = async () => {
+  const { data, error } = await supabase
+    .from('recipes')
+    .insert([
+      {
+        user_id: userInfo.value.id,
+        name: cleanRecipe.value.title,
+        url: cleanRecipe.value.instructions,
+      },
+    ])
+    .select();
+
+  if (error) {
+    alert(error.message);
+    return;
+  }
+};
+
+onMounted(() => {
+  getProfile();
+});
 </script>
 
 <template>
   <div class="h-screen w-screen overflow-auto">
     <Navbar class="sticky top-0 bg-light-background" />
     <div class="my-4 px-4 md:px-8">
+      <h3 class="text-2xl">Import recipe using it's url or create your own</h3>
       <div v-if="!showPreview" class="flex flex-col gap-4">
-        <h3 class="text-2xl">Import recipe using it's url or create your own</h3>
-        <form @submit.prevent="fetchRecipe()" class="flex flex-col gap-2">
+        <form @submit.prevent="fetchRecipe()" class="flex w-full flex-col gap-2 md:w-1/2">
           <LabeledInput
             v-model="url"
             :id="'url'"
@@ -105,47 +202,79 @@ const getRecipeData = async () => {
             Import
           </button>
         </form>
-        {{ cleanRecipe.title }}
-        <div class="flex flex-col gap-2">
-          <LabeledInput
-            v-model="cleanRecipe.title"
-            :id="'title'"
-            :label="'Title'"
-            :required="true"
-          />
-          <LabeledInput
-            v-model="cleanRecipe.description"
-            :id="'description'"
-            :label="'Description'"
-          />
-          <LabeledInput v-model="cleanRecipe.servings" :id="'servings'" :label="'Servings'" />
-          <div class="flex gap-2">
-            <LabeledInput v-model="cleanRecipe.cookTime" :id="'ctime'" :label="'Cook time'" />
-            <LabeledInput v-model="cleanRecipe.prepTime" :id="'ptime'" :label="'Prep time'" />
-          </div>
-
-          <label class="mt-2">Ingredients</label>
-          <div class="flex flex-col gap-2">
-            <input
-              v-for="(ingredient, index) in cleanRecipe.ingredients"
-              :key="index"
-              v-model="cleanRecipe.ingredients[index]"
-              class="w-full resize-y rounded-md border border-light-text bg-light-background px-2 py-1 placeholder:text-gray-500"
-              type="text"
-              :value="ingredient"
+        <div class="flex w-full flex-col justify-between gap-2 md:flex-row">
+          <div class="flex w-full flex-col gap-2">
+            <LabeledInput
+              v-model="cleanRecipe.title"
+              :id="'title'"
+              :label="'Title'"
+              :required="true"
+              :placeholder="'Enter recipe name'"
+            />
+            <LabeledInput
+              v-model="cleanRecipe.description"
+              :id="'description'"
+              :label="'Description'"
+              :placeholder="'Describe your recipe'"
+            />
+            <LabeledInput
+              v-model="cleanRecipe.servings"
+              :id="'servings'"
+              :label="'Servings'"
+              :placeholder="'Number of servings'"
+            />
+            <div class="flex w-full flex-col gap-2 md:flex-row">
+              <LabeledInput
+                v-model="cleanRecipe.cookTime"
+                :id="'ctime'"
+                :label="'Cook time'"
+                :placeholder="'eg. 01:30'"
+                class="w-full"
+              />
+              <LabeledInput
+                v-model="cleanRecipe.prepTime"
+                :id="'ptime'"
+                :label="'Prep time'"
+                :placeholder="'eg. 00:30'"
+                class="w-full"
+              />
+            </div>
+            <LabeledInput
+              v-model="cleanRecipe.recipeUrl"
+              :id="'url2'"
+              :label="'Url'"
+              :placeholder="'https://'"
+              class="w-full"
             />
           </div>
-          <label class="mt-2">Instructions</label>
-          <textarea
-            v-for="(instuction, index) in cleanRecipe.instructions"
-            :key="index"
-            v-model="cleanRecipe.instructions[index]"
-            class="h-32 resize-y rounded-md border border-light-text bg-light-background px-2 py-1 placeholder:text-gray-500"
-          ></textarea>
+
+          <div class="flex h-full w-full flex-col gap-2">
+            <div class="flex flex-col">
+              <label for="ingredients">Ingredients</label>
+              <textarea
+                id="ingredients"
+                v-model="cleanRecipe.ingredients"
+                class="min-h-32 resize-y rounded-md border border-light-text bg-light-background px-2 py-1 placeholder:text-gray-500"
+              ></textarea>
+            </div>
+            <div class="flex flex-col">
+              <label for="instructions">Instructions</label>
+              <textarea
+                id="instructions"
+                v-model="cleanRecipe.instructions"
+                class="min-h-32 resize-y rounded-md border border-light-text bg-light-background px-2 py-1 placeholder:text-gray-500"
+              ></textarea>
+            </div>
+          </div>
         </div>
       </div>
       <Recipe v-else :recipe="cleanRecipe" />
-      <button @click="showPreview = !showPreview">Preview</button>
+      <div class="flex w-full gap-4 md:w-1/2">
+        <button class="hover:underline" @click="addRecipe()">Save recipe</button>
+        <button @click="showPreview = !showPreview">
+          {{ showPreview ? 'Close preview' : 'Preview' }}
+        </button>
+      </div>
     </div>
   </div>
 </template>

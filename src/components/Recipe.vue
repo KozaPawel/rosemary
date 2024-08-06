@@ -11,7 +11,7 @@ const formattedTime = (time) => {
 
 <template>
   <div>
-    {{ props.recipe }}
+    <text>{{ props.recipe }}</text>
     <!-- {{ formattedTime(props.recipe.prepTime) }} -->
   </div>
 </template>
