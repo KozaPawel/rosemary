@@ -4,14 +4,45 @@ const props = defineProps({
 });
 
 const formattedTime = (time) => {
-  const formatted = time.replace('PT', '').replace('H', ':').replace('M', ':').replace('S', '');
+  const formatted = time.replace('PT', '').replace('H', ':').replace('M', '').replace('S', '');
   return formatted;
 };
 </script>
 
 <template>
-  <div>
-    <text>{{ props.recipe }}</text>
-    <!-- {{ formattedTime(props.recipe.prepTime) }} -->
+  <div class="m-auto flex w-full flex-col gap-2 md:w-1/2">
+    <h1 class="self-center text-3xl font-bold">{{ props.recipe.title }}</h1>
+    <hr class="my-4 h-px border-0 bg-gray-300" />
+    <h3 class="text-xl">{{ props.recipe.description }}</h3>
+    <a
+      :href="props.recipe.recipeUrl"
+      target="_blank"
+      class="w-fit font-semibold text-light-green-500 hover:underline"
+      >{{ props.recipe.recipeUrl }}</a
+    >
+    <div class="flex flex-col gap-2 md:flex-row md:gap-12">
+      <p v-show="props.recipe.servings">
+        <text class="font-semibold">Servings:</text> {{ props.recipe.servings }}
+      </p>
+      <p v-show="props.recipe.prepTime">
+        <text class="font-semibold">Prep time:</text> {{ props.recipe.prepTime }}
+      </p>
+      <p v-show="props.recipe.cookTime">
+        <text class="font-semibold">Cook time:</text>
+        {{ props.recipe.cookTime }}
+      </p>
+    </div>
+    <div>
+      <p class="text-lg font-semibold">Ingredients</p>
+      <text class="whitespace-pre-line">
+        {{ props.recipe.ingredients }}
+      </text>
+    </div>
+    <div>
+      <p class="text-lg font-semibold">Instructions</p>
+      <text class="whitespace-pre-line">
+        {{ props.recipe.instructions }}
+      </text>
+    </div>
   </div>
 </template>

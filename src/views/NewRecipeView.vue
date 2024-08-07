@@ -6,12 +6,14 @@ import * as cheerio from 'cheerio';
 import Navbar from '@/components/Navbar.vue';
 import Recipe from '@/components/Recipe.vue';
 import LabeledInput from '@/components/LabeledInput.vue';
+import IconSpinner from '@/components/icons/IconSpinner.vue';
 
 const userInfo = ref(null);
 const url = ref('');
 const fetchedRecipe = ref('');
 const cleanRecipe = ref({});
 const showPreview = ref(false);
+const loadingImport = ref(false);
 
 const getProfile = async () => {
   const {
@@ -21,6 +23,7 @@ const getProfile = async () => {
 };
 
 const fetchRecipe = async () => {
+  loadingImport.value = true;
   const { data, error } = await supabase.functions.invoke('scrap', {
     body: { url: url.value },
   });
@@ -28,6 +31,7 @@ const fetchRecipe = async () => {
   fetchedRecipe.value = data;
 
   getRecipeData();
+  loadingImport.value = false;
 };
 
 const getRecipeData = async () => {
@@ -101,10 +105,10 @@ const getRecipeData = async () => {
               const instructionPoints = checkIfInstruction(text);
 
               if (ingredientPoints > instructionPoints) {
-                if (index !== 0) ingredients += '\n';
+                if (index !== 0 || ingredients.length > 0) ingredients += '\n';
                 ingredients += text;
               } else {
-                if (index !== 0) instructions += '\n';
+                if (index !== 0 || instructions.length > 0) instructions += '\n';
                 instructions += text;
               }
             });
@@ -184,7 +188,9 @@ onMounted(() => {
   <div class="h-screen w-screen overflow-auto">
     <Navbar class="sticky top-0 bg-light-background" />
     <div class="my-4 px-4 md:px-8">
-      <h3 class="text-2xl">Import recipe using it's url or create your own</h3>
+      <h3 class="mb-4 text-2xl">
+        {{ !showPreview ? "Import recipe using it's url or create your own" : 'Recipe preview' }}
+      </h3>
       <div v-if="!showPreview" class="flex flex-col gap-4">
         <form @submit.prevent="fetchRecipe()" class="flex w-full flex-col gap-2 md:w-1/2">
           <LabeledInput
@@ -199,10 +205,11 @@ onMounted(() => {
             type="submit"
             class="w-fit rounded-md bg-light-text px-3 py-1 font-semibold text-light-background hover:bg-light-text/80"
           >
-            Import
+            <text v-if="!loadingImport">Import</text>
+            <IconSpinner v-else class="!fill-light-background text-light-text" />
           </button>
         </form>
-        <div class="flex w-full flex-col justify-between gap-2 md:flex-row">
+        <div class="mt-2 flex w-full flex-col justify-between gap-2 md:flex-row">
           <div class="flex w-full flex-col gap-2">
             <LabeledInput
               v-model="cleanRecipe.title"
@@ -255,6 +262,7 @@ onMounted(() => {
                 id="ingredients"
                 v-model="cleanRecipe.ingredients"
                 class="min-h-32 resize-y rounded-md border border-light-text bg-light-background px-2 py-1 placeholder:text-gray-500"
+                :placeholder="'ingredient1\ningredient2'"
               ></textarea>
             </div>
             <div class="flex flex-col">
@@ -263,16 +271,25 @@ onMounted(() => {
                 id="instructions"
                 v-model="cleanRecipe.instructions"
                 class="min-h-32 resize-y rounded-md border border-light-text bg-light-background px-2 py-1 placeholder:text-gray-500"
+                :placeholder="'Do this...\nDo that...'"
               ></textarea>
             </div>
           </div>
         </div>
       </div>
       <Recipe v-else :recipe="cleanRecipe" />
-      <div class="flex w-full gap-4 md:w-1/2">
-        <button class="hover:underline" @click="addRecipe()">Save recipe</button>
-        <button @click="showPreview = !showPreview">
+      <div class="mt-4 flex w-full justify-end gap-4">
+        <button
+          @click="showPreview = !showPreview"
+          class="w-fit rounded-md border border-light-green-500 px-3 py-1 font-semibold text-light-green-500 hover:bg-light-green-500 hover:text-light-background"
+        >
           {{ showPreview ? 'Close preview' : 'Preview' }}
+        </button>
+        <button
+          @click="addRecipe()"
+          class="w-fit rounded-md bg-light-green-500 px-3 py-1 font-semibold text-light-background hover:bg-light-green-600"
+        >
+          Save recipe
         </button>
       </div>
     </div>
