@@ -4,6 +4,7 @@ import { supabase } from '@/supabase';
 import LoginView from '@/views/LoginView.vue';
 import SignupView from '@/views/SignupView.vue';
 import UserView from '@/views/UserView.vue';
+import NewRecipeView from '@/views/NewRecipeView.vue';
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -12,6 +13,14 @@ const router = createRouter({
       path: '/user',
       name: 'user',
       component: UserView,
+      meta: {
+        auth: true,
+      },
+    },
+    {
+      path: '/new-recipe',
+      name: 'newRecipe',
+      component: NewRecipeView,
       meta: {
         auth: true,
       },
