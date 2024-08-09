@@ -5,22 +5,11 @@ import { RouterLink } from 'vue-router';
 
 import Navbar from '@/components/Navbar.vue';
 
-const userInfo = ref(null);
 const recipies = ref(null);
-
-const getProfile = async () => {
-  const {
-    data: { session },
-  } = await supabase.auth.getSession();
-  userInfo.value = session.user;
-};
 
 const fetchRecipes = async () => {
   let { data: recipes, error } = await supabase.from('recipes').select('*');
-  recipies.value = recipes.map((recipe) => ({
-    name: recipe.name,
-    url: recipe.url,
-  }));
+  recipies.value = recipes;
 
   if (error) {
     alert(error.message);
@@ -28,7 +17,6 @@ const fetchRecipes = async () => {
 };
 
 onMounted(() => {
-  getProfile();
   fetchRecipes();
 });
 </script>
@@ -44,9 +32,9 @@ onMounted(() => {
           Add new recipe
         </button>
       </RouterLink>
-      <!-- <div class="overflow-scroll whitespace-pre-line" v-for="recipe in recipies" :key="recipe">
-        {{ recipe.url }}
-      </div> -->
+      <div class="whitespace-pre-line" v-for="recipe in recipies" :key="recipe">
+        {{ recipe }}
+      </div>
     </div>
   </div>
 </template>

@@ -17,10 +17,10 @@ const errorMessage = ref('');
 const passwordType = ref('password');
 const showPassword = ref(false);
 const showError = ref(false);
-const loading = ref(false);
+const isSigningUp = ref(false);
 
 const signUp = async () => {
-  loading.value = true;
+  isSigningUp.value = true;
   errorMessage.value = '';
   showError.value = false;
 
@@ -32,12 +32,12 @@ const signUp = async () => {
   if (error) {
     errorMessage.value = error.message;
     showError.value = true;
-    loading.value = false;
+    isSigningUp.value = false;
     return;
   }
 
   router.push('user');
-  loading.value = false;
+  isSigningUp.value = false;
 };
 
 const changePasswordType = () => {
@@ -88,8 +88,9 @@ const changePasswordType = () => {
       <button
         type="submit"
         class="mt-2 w-fit rounded-md bg-light-green-500 px-3 py-1 font-semibold text-light-background hover:bg-light-green-600"
+        :disabled="isSigningUp"
       >
-        <text v-if="!loading">Sign up</text>
+        <text v-if="!isSigningUp">Sign up</text>
         <IconSpinner v-else />
       </button>
     </form>

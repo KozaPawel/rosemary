@@ -1,5 +1,5 @@
 <script setup>
-import { onMounted, ref } from 'vue';
+import { ref } from 'vue';
 import { supabase } from '@/supabase';
 import * as cheerio from 'cheerio';
 
@@ -8,22 +8,14 @@ import Recipe from '@/components/Recipe.vue';
 import LabeledInput from '@/components/LabeledInput.vue';
 import IconSpinner from '@/components/icons/IconSpinner.vue';
 
-const userInfo = ref(null);
 const url = ref('');
 const fetchedRecipe = ref('');
 const cleanRecipe = ref({});
 const showPreview = ref(false);
-const loadingImport = ref(false);
-
-const getProfile = async () => {
-  const {
-    data: { session },
-  } = await supabase.auth.getSession();
-  userInfo.value = session.user;
-};
+const isImporting = ref(false);
 
 const fetchRecipe = async () => {
-  loadingImport.value = true;
+  isImporting.value = true;
   const { data, error } = await supabase.functions.invoke('scrap', {
     body: { url: url.value },
   });
@@ -31,7 +23,7 @@ const fetchRecipe = async () => {
   fetchedRecipe.value = data;
 
   getRecipeData();
-  loadingImport.value = false;
+  isImporting.value = false;
 };
 
 const getRecipeData = async () => {
@@ -76,7 +68,7 @@ const getRecipeData = async () => {
     instructions = JSON.stringify(jsonld.recipeInstructions);
   } else {
     $('*[itemprop="recipeInstructions"]').each((index, element) => {
-      if (index !== 0) instructions += '\n';
+      if (index !== 0) instructions += '\n\n';
       instructions += $(element)
         .text()
         .replace(/(\r\n|\n|\r|\t)/gm, '');
@@ -108,7 +100,7 @@ const getRecipeData = async () => {
                 if (index !== 0 || ingredients.length > 0) ingredients += '\n';
                 ingredients += text;
               } else {
-                if (index !== 0 || instructions.length > 0) instructions += '\n';
+                if (index !== 0 || instructions.length > 0) instructions += '\n\n';
                 instructions += text;
               }
             });
@@ -166,9 +158,7 @@ const addRecipe = async () => {
     .from('recipes')
     .insert([
       {
-        user_id: userInfo.value.id,
-        name: cleanRecipe.value.title,
-        url: cleanRecipe.value.instructions,
+        title: cleanRecipe.value.title,
       },
     ])
     .select();
@@ -178,18 +168,14 @@ const addRecipe = async () => {
     return;
   }
 };
-
-onMounted(() => {
-  getProfile();
-});
 </script>
 
 <template>
   <div class="h-screen w-screen overflow-auto">
     <Navbar class="sticky top-0 bg-light-background" />
     <div class="my-4 px-4 md:px-8">
-      <h3 class="mb-4 text-2xl">
-        {{ !showPreview ? "Import recipe using it's url or create your own" : 'Recipe preview' }}
+      <h3 class="mb-4 text-2xl" v-if="!showPreview">
+        Import recipe using it's url or create your own
       </h3>
       <div v-if="!showPreview" class="flex flex-col gap-4">
         <form @submit.prevent="fetchRecipe()" class="flex w-full flex-col gap-2 md:w-1/2">
@@ -204,8 +190,9 @@ onMounted(() => {
           <button
             type="submit"
             class="w-fit rounded-md bg-light-text px-3 py-1 font-semibold text-light-background hover:bg-light-text/80"
+            :disabled="isImporting"
           >
-            <text v-if="!loadingImport">Import</text>
+            <text v-if="!isImporting">Import</text>
             <IconSpinner v-else class="!fill-light-background text-light-text" />
           </button>
         </form>
@@ -283,7 +270,7 @@ onMounted(() => {
           @click="showPreview = !showPreview"
           class="w-fit rounded-md border border-light-green-500 px-3 py-1 font-semibold text-light-green-500 hover:bg-light-green-500 hover:text-light-background"
         >
-          {{ showPreview ? 'Close preview' : 'Preview' }}
+          {{ showPreview ? 'Close preview' : 'Show preview' }}
         </button>
         <button
           @click="addRecipe()"
