@@ -4,8 +4,12 @@ const props = defineProps({
 });
 
 const formattedTime = (time) => {
-  const formatted = time.replace('PT', '').replace('H', ':').replace('M', '').replace('S', '');
-  return formatted;
+  let hours = Math.floor(time / 60);
+  let minutes = time % 60;
+  if (minutes === 0) {
+    minutes = '00';
+  }
+  return hours + ':' + minutes + 'h';
 };
 </script>
 
@@ -13,11 +17,12 @@ const formattedTime = (time) => {
   <div class="m-auto flex w-full flex-col gap-2 break-words md:w-1/2">
     <h1 class="self-center text-3xl font-bold">{{ props.recipe.title }}</h1>
     <hr class="my-4 h-px border-0 bg-gray-300" v-if="props.recipe.title" />
-    <h3 class="text-xl">{{ props.recipe.description }}</h3>
+    <h3 class="text-xl" v-if="props.recipe.description">{{ props.recipe.description }}</h3>
     <a
       :href="props.recipe.recipeUrl"
       target="_blank"
       class="w-fit font-semibold text-light-green-500 hover:underline"
+      v-if="props.recipe.recipeUrl"
       >{{ props.recipe.recipeUrl }}</a
     >
     <div
@@ -28,11 +33,11 @@ const formattedTime = (time) => {
         <text class="font-semibold">Servings:</text> {{ props.recipe.servings }}
       </p>
       <p v-if="props.recipe.prepTime">
-        <text class="font-semibold">Prep time:</text> {{ props.recipe.prepTime }}
+        <text class="font-semibold">Prep time:</text> {{ formattedTime(props.recipe.prepTime) }}
       </p>
       <p v-if="props.recipe.cookTime">
         <text class="font-semibold">Cook time:</text>
-        {{ props.recipe.cookTime }}
+        {{ formattedTime(props.recipe.cookTime) }}
       </p>
     </div>
     <div v-if="props.recipe.ingredients">

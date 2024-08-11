@@ -10,7 +10,7 @@ const props = defineProps({
   },
   id: String,
   label: String,
-  modelValue: String,
+  modelValue: [String, Number],
   placeholder: String,
   error: Boolean,
   smallText: String,

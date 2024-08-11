@@ -52,6 +52,13 @@ const getRecipeData = async () => {
   let cookTime = jsonld.cookTime || $('meta[itemprop="cookTime"]').attr('content') || '';
   const recipeUrl = url.value;
 
+  if (prepTime) {
+    prepTime = timeToMinutes(prepTime);
+  }
+  if (cookTime) {
+    cookTime = timeToMinutes(cookTime);
+  }
+
   if (jsonld.recipeIngredient) {
     jsonld.recipeIngredient.forEach((ingredient, index) => {
       if (index !== 0) ingredients += '\n';
@@ -119,6 +126,21 @@ const getRecipeData = async () => {
     instructions,
     recipeUrl,
   };
+};
+
+const timeToMinutes = (time) => {
+  let timeInMinutes = time.toLowerCase().replace('pt', '');
+  let hours = timeInMinutes.match(/(\d+)h/) || 0;
+  let minutes = timeInMinutes.match(/(\d+)m/) || 0;
+
+  if (hours) {
+    hours = hours[1];
+  }
+  if (minutes) {
+    minutes = minutes[1];
+  }
+
+  return hours * 60 + minutes * 1;
 };
 
 const checkIfIngredient = (item) => {
@@ -203,33 +225,26 @@ const addRecipe = async () => {
               :id="'title'"
               :label="'Title'"
               :required="true"
-              :placeholder="'Enter recipe name'"
             />
             <LabeledInput
               v-model="cleanRecipe.description"
               :id="'description'"
               :label="'Description'"
-              :placeholder="'Describe your recipe'"
             />
-            <LabeledInput
-              v-model="cleanRecipe.servings"
-              :id="'servings'"
-              :label="'Servings'"
-              :placeholder="'Number of servings'"
-            />
+            <LabeledInput v-model="cleanRecipe.servings" :id="'servings'" :label="'Servings'" />
             <div class="flex w-full flex-col gap-2 md:flex-row">
               <LabeledInput
                 v-model="cleanRecipe.cookTime"
                 :id="'ctime'"
-                :label="'Cook time'"
-                :placeholder="'eg. 01:30'"
+                :label="'Cook time (minutes)'"
+                :type="'number'"
                 class="w-full"
               />
               <LabeledInput
                 v-model="cleanRecipe.prepTime"
                 :id="'ptime'"
-                :label="'Prep time'"
-                :placeholder="'eg. 00:30'"
+                :label="'Prep time (minutes)'"
+                :type="'number'"
                 class="w-full"
               />
             </div>
@@ -237,28 +252,25 @@ const addRecipe = async () => {
               v-model="cleanRecipe.recipeUrl"
               :id="'url2'"
               :label="'Url'"
-              :placeholder="'https://'"
               class="w-full"
             />
           </div>
 
           <div class="flex h-full w-full flex-col gap-2">
             <div class="flex flex-col">
-              <label for="ingredients">Ingredients</label>
+              <label for="ingredients">Ingredients (one per line)</label>
               <textarea
                 id="ingredients"
                 v-model="cleanRecipe.ingredients"
                 class="min-h-32 resize-y rounded-md border border-light-text bg-light-background px-2 py-1 placeholder:text-gray-500"
-                :placeholder="'ingredient1\ningredient2'"
               ></textarea>
             </div>
             <div class="flex flex-col">
-              <label for="instructions">Instructions</label>
+              <label for="instructions">Instructions (one per line)</label>
               <textarea
                 id="instructions"
                 v-model="cleanRecipe.instructions"
                 class="min-h-32 resize-y rounded-md border border-light-text bg-light-background px-2 py-1 placeholder:text-gray-500"
-                :placeholder="'Do this...\nDo that...'"
               ></textarea>
             </div>
           </div>
