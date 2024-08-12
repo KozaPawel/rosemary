@@ -5,6 +5,7 @@ import { supabase } from '@/supabase';
 
 import IconEye from '@/components/icons/IconEye.vue';
 import IconEyeClose from '@/components/icons/IconEyeClose.vue';
+import IconSpinner from '@/components/icons/IconSpinner.vue';
 import ErrorMessage from '@/components/ErrorMessage.vue';
 import Auth from '@/components/Auth.vue';
 import LabeledInput from '@/components/LabeledInput.vue';
@@ -16,8 +17,10 @@ const errorMessage = ref('');
 const passwordType = ref('password');
 const showPassword = ref(false);
 const showError = ref(false);
+const isLoggingIn = ref(false);
 
 const signInWithPassword = async () => {
+  isLoggingIn.value = true;
   errorMessage.value = '';
   showError.value = false;
 
@@ -29,10 +32,12 @@ const signInWithPassword = async () => {
   if (error) {
     errorMessage.value = error.message;
     showError.value = true;
+    isLoggingIn.value = false;
     return;
   }
 
   router.push('user');
+  isLoggingIn.value = false;
 };
 
 const changePasswordType = () => {
@@ -82,8 +87,10 @@ const changePasswordType = () => {
       <button
         type="submit"
         class="mt-2 w-fit rounded-md bg-light-green-500 px-3 py-1 font-semibold text-light-background hover:bg-light-green-600"
+        :disabled="isLoggingIn"
       >
-        Log in
+        <text v-if="!isLoggingIn">Log in</text>
+        <IconSpinner v-else />
       </button>
     </form>
   </Auth>

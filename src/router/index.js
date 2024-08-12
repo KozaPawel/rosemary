@@ -5,6 +5,7 @@ import LoginView from '@/views/LoginView.vue';
 import SignupView from '@/views/SignupView.vue';
 import UserView from '@/views/UserView.vue';
 import NewRecipeView from '@/views/NewRecipeView.vue';
+import RecipeView from '@/views/RecipeView.vue';
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -21,6 +22,14 @@ const router = createRouter({
       path: '/new-recipe',
       name: 'newRecipe',
       component: NewRecipeView,
+      meta: {
+        auth: true,
+      },
+    },
+    {
+      path: '/recipe/:id',
+      name: 'recipe',
+      component: RecipeView,
       meta: {
         auth: true,
       },
