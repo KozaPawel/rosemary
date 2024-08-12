@@ -7,12 +7,15 @@ import Navbar from '@/components/Navbar.vue';
 import Recipe from '@/components/Recipe.vue';
 import LabeledInput from '@/components/LabeledInput.vue';
 import IconSpinner from '@/components/icons/IconSpinner.vue';
+import ErrorMessage from '@/components/ErrorMessage.vue';
 
 const url = ref('');
 const fetchedRecipe = ref('');
 const cleanRecipe = ref({});
 const showPreview = ref(false);
+const showError = ref(false);
 const isImporting = ref(false);
+const isSaving = ref(false);
 
 const fetchRecipe = async () => {
   isImporting.value = true;
@@ -176,19 +179,31 @@ const checkIfInstruction = (item) => {
 };
 
 const addRecipe = async () => {
+  isSaving.value = true;
+  showError.value = false;
   const { data, error } = await supabase
     .from('recipes')
     .insert([
       {
         title: cleanRecipe.value.title,
+        description: cleanRecipe.value.description,
+        servings: cleanRecipe.value.servings,
+        cook_time: cleanRecipe.value.cookTime,
+        prep_time: cleanRecipe.value.prepTime,
+        ingredients: cleanRecipe.value.ingredients,
+        instructions: cleanRecipe.value.instructions,
+        url: cleanRecipe.value.recipeUrl,
+        image: cleanRecipe.value.image,
       },
     ])
     .select();
 
   if (error) {
-    alert(error.message);
+    showError.value = true;
+    isSaving.value = false;
     return;
   }
+  isSaving.value = false;
 };
 </script>
 
@@ -225,7 +240,9 @@ const addRecipe = async () => {
               :id="'title'"
               :label="'Title'"
               :required="true"
+              :error="showError"
             />
+            <ErrorMessage v-if="showError" :message="'Title field is required'" />
             <LabeledInput
               v-model="cleanRecipe.description"
               :id="'description'"
@@ -288,7 +305,8 @@ const addRecipe = async () => {
           @click="addRecipe()"
           class="w-fit rounded-md bg-light-green-500 px-3 py-1 font-semibold text-light-background hover:bg-light-green-600"
         >
-          Save recipe
+          <text v-if="!isSaving">Save recipe</text>
+          <IconSpinner v-else />
         </button>
       </div>
     </div>

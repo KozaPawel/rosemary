@@ -8,6 +8,8 @@ const formattedTime = (time) => {
   let minutes = time % 60;
   if (minutes === 0) {
     minutes = '00';
+  } else if (minutes < 10) {
+    minutes = '0' + minutes;
   }
   return hours + ':' + minutes + 'h';
 };
@@ -15,6 +17,7 @@ const formattedTime = (time) => {
 
 <template>
   <div class="m-auto flex w-full flex-col gap-2 break-words md:w-1/2">
+    <img :src="props.recipe.image" class="h-64 object-cover" v-if="props.recipe.image" />
     <h1 class="self-center text-3xl font-bold">{{ props.recipe.title }}</h1>
     <hr class="my-4 h-px border-0 bg-gray-300" v-if="props.recipe.title" />
     <h3 class="text-xl" v-if="props.recipe.description">{{ props.recipe.description }}</h3>
