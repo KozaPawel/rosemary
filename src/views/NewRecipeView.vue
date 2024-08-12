@@ -1,5 +1,6 @@
 <script setup>
 import { ref } from 'vue';
+import { useRouter } from 'vue-router';
 import { supabase } from '@/supabase';
 import * as cheerio from 'cheerio';
 
@@ -16,6 +17,7 @@ const showPreview = ref(false);
 const showError = ref(false);
 const isImporting = ref(false);
 const isSaving = ref(false);
+const router = useRouter();
 
 const fetchRecipe = async () => {
   isImporting.value = true;
@@ -192,7 +194,7 @@ const addRecipe = async () => {
         prep_time: cleanRecipe.value.prepTime,
         ingredients: cleanRecipe.value.ingredients,
         instructions: cleanRecipe.value.instructions,
-        url: cleanRecipe.value.recipeUrl,
+        recipe_url: cleanRecipe.value.recipeUrl,
         image: cleanRecipe.value.image,
       },
     ])
@@ -203,6 +205,8 @@ const addRecipe = async () => {
     isSaving.value = false;
     return;
   }
+
+  router.push(`/recipe/${data[0].id}`);
   isSaving.value = false;
 };
 </script>
@@ -211,7 +215,7 @@ const addRecipe = async () => {
   <div class="h-screen w-screen overflow-auto">
     <Navbar class="sticky top-0 bg-light-background" />
     <div class="my-4 px-4 md:px-8">
-      <h3 class="mb-4 text-2xl" v-if="!showPreview">
+      <h3 class="mb-4 text-2xl font-medium" v-if="!showPreview">
         Import recipe using it's url or create your own
       </h3>
       <div v-if="!showPreview" class="flex flex-col gap-4">
@@ -304,6 +308,7 @@ const addRecipe = async () => {
         <button
           @click="addRecipe()"
           class="w-fit rounded-md bg-light-green-500 px-3 py-1 font-semibold text-light-background hover:bg-light-green-600"
+          :disabled="isSaving"
         >
           <text v-if="!isSaving">Save recipe</text>
           <IconSpinner v-else />
