@@ -9,6 +9,7 @@ import Recipe from '@/components/Recipe.vue';
 import LabeledInput from '@/components/LabeledInput.vue';
 import IconSpinner from '@/components/icons/IconSpinner.vue';
 import ErrorMessage from '@/components/ErrorMessage.vue';
+import RecipeForm from '@/components/RecipeForm.vue';
 
 const url = ref('');
 const fetchedRecipe = ref('');
@@ -201,6 +202,7 @@ const addRecipe = async () => {
     .select();
 
   if (error) {
+    alert(error.message);
     showError.value = true;
     isSaving.value = false;
     return;
@@ -237,65 +239,7 @@ const addRecipe = async () => {
             <IconSpinner v-else class="!fill-light-background text-light-text" />
           </button>
         </form>
-        <div class="mt-2 flex w-full flex-col justify-between gap-2 md:flex-row">
-          <div class="flex w-full flex-col gap-2">
-            <LabeledInput
-              v-model="cleanRecipe.title"
-              :id="'title'"
-              :label="'Title'"
-              :required="true"
-              :error="showError"
-            />
-            <ErrorMessage v-if="showError" :message="'Title field is required'" />
-            <LabeledInput
-              v-model="cleanRecipe.description"
-              :id="'description'"
-              :label="'Description'"
-            />
-            <LabeledInput v-model="cleanRecipe.servings" :id="'servings'" :label="'Servings'" />
-            <div class="flex w-full flex-col gap-2 md:flex-row">
-              <LabeledInput
-                v-model="cleanRecipe.cookTime"
-                :id="'ctime'"
-                :label="'Cook time (minutes)'"
-                :type="'number'"
-                class="w-full"
-              />
-              <LabeledInput
-                v-model="cleanRecipe.prepTime"
-                :id="'ptime'"
-                :label="'Prep time (minutes)'"
-                :type="'number'"
-                class="w-full"
-              />
-            </div>
-            <LabeledInput
-              v-model="cleanRecipe.recipeUrl"
-              :id="'url2'"
-              :label="'Url'"
-              class="w-full"
-            />
-          </div>
-
-          <div class="flex h-full w-full flex-col gap-2">
-            <div class="flex flex-col">
-              <label for="ingredients">Ingredients (one per line)</label>
-              <textarea
-                id="ingredients"
-                v-model="cleanRecipe.ingredients"
-                class="min-h-32 resize-y rounded-md border border-light-text bg-light-background px-2 py-1 placeholder:text-gray-500"
-              ></textarea>
-            </div>
-            <div class="flex flex-col">
-              <label for="instructions">Instructions (one per line)</label>
-              <textarea
-                id="instructions"
-                v-model="cleanRecipe.instructions"
-                class="min-h-32 resize-y rounded-md border border-light-text bg-light-background px-2 py-1 placeholder:text-gray-500"
-              ></textarea>
-            </div>
-          </div>
-        </div>
+        <RecipeForm :recipe="cleanRecipe" :error="showError" />
       </div>
       <Recipe v-else :recipe="cleanRecipe" />
       <div class="mt-4 flex w-full justify-end gap-4">

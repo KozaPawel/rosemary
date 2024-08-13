@@ -8,6 +8,7 @@ import Recipe from '@/components/Recipe.vue';
 import IconNothingFound from '@/components/icons/IconNothingFound.vue';
 import IconSpinner from '@/components/icons/IconSpinner.vue';
 import DeleteDialog from '@/components/DeleteDialog.vue';
+import EditButton from '@/components/EditButton.vue';
 
 const router = useRouter();
 const recipeId = useRoute().params.id;
@@ -30,7 +31,7 @@ const deleteRecipe = async () => {
 onBeforeMount(async () => {
   isFetching.value = true;
   let { data, error } = await supabase.from('recipes').select('*').eq('id', recipeId);
-  recipe.value = data;
+  recipe.value = data[0];
 
   if (error) {
     alert(error.message);
@@ -42,11 +43,12 @@ onBeforeMount(async () => {
 <template>
   <div class="overflow-auto">
     <Navbar class="sticky top-0 bg-light-background" />
-    <div class="mt-4 flex md:justify-center">
+    <div class="mt-4 flex gap-2 md:justify-center" v-if="recipe && !isFetching">
+      <EditButton @edit-recipe="router.push(`/edit/${recipeId}`)" />
       <DeleteDialog @delete-confirmed="deleteRecipe()" :is-deleting="isDeleting" />
     </div>
     <div class="my-4 px-4 md:px-8" v-if="!isFetching">
-      <Recipe :recipe="recipe[0]" v-if="recipe[0]" />
+      <Recipe :recipe="recipe" v-if="recipe" />
       <div v-else class="flex flex-col items-center justify-center">
         <IconNothingFound class="max-h-96" />
         <p class="text-2xl">There's no recipe to show</p>

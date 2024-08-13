@@ -20,7 +20,7 @@ defineEmits(['deleteConfirmed']);
       @click="visible = true"
       class="flex items-center p-2 hover:rounded-md hover:bg-light-text/10"
     >
-      <IconTrash />
+      <IconTrash class="size-6" />
       <p class="font-medium">Delete</p>
     </button>
     <Dialog
