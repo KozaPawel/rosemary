@@ -23,7 +23,7 @@ const signOut = async () => {
 
 <template>
   <div
-    class="flex flex-row items-center justify-between px-4 py-4 shadow shadow-light-text/20 md:px-8"
+    class="z-10 flex flex-row items-center justify-between px-4 py-4 shadow shadow-light-text/20 md:px-8"
   >
     <RouterLink to="/user" class="text-2xl font-bold text-light-green-500 hover:underline">
       Rosemary

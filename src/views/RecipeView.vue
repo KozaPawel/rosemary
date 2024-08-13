@@ -1,16 +1,31 @@
 <script setup>
 import { onBeforeMount, ref } from 'vue';
-import { useRoute, RouterLink } from 'vue-router';
+import { useRoute, useRouter, RouterLink } from 'vue-router';
 import { supabase } from '@/supabase';
 
 import Navbar from '@/components/Navbar.vue';
 import Recipe from '@/components/Recipe.vue';
 import IconNothingFound from '@/components/icons/IconNothingFound.vue';
 import IconSpinner from '@/components/icons/IconSpinner.vue';
+import DeleteDialog from '@/components/DeleteDialog.vue';
 
+const router = useRouter();
 const recipeId = useRoute().params.id;
 const recipe = ref({});
 const isFetching = ref(false);
+const isDeleting = ref(false);
+
+const deleteRecipe = async () => {
+  isDeleting.value = true;
+  const { error } = await supabase.from('recipes').delete().eq('id', recipeId);
+
+  if (error) {
+    alert(error.message);
+  }
+
+  router.push('/user');
+  isDeleting.value = false;
+};
 
 onBeforeMount(async () => {
   isFetching.value = true;
@@ -27,6 +42,9 @@ onBeforeMount(async () => {
 <template>
   <div class="overflow-auto">
     <Navbar class="sticky top-0 bg-light-background" />
+    <div class="mt-4 flex md:justify-center">
+      <DeleteDialog @delete-confirmed="deleteRecipe()" :is-deleting="isDeleting" />
+    </div>
     <div class="my-4 px-4 md:px-8" v-if="!isFetching">
       <Recipe :recipe="recipe[0]" v-if="recipe[0]" />
       <div v-else class="flex flex-col items-center justify-center">
