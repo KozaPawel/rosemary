@@ -6,24 +6,28 @@ import { supabase } from '@/supabase';
 import Navbar from '@/components/Navbar.vue';
 import Recipe from '@/components/Recipe.vue';
 import IconNothingFound from '@/components/icons/IconNothingFound.vue';
+import IconSpinner from '@/components/icons/IconSpinner.vue';
 
 const recipeId = useRoute().params.id;
 const recipe = ref({});
+const isFetching = ref(false);
 
 onBeforeMount(async () => {
+  isFetching.value = true;
   let { data, error } = await supabase.from('recipes').select('*').eq('id', recipeId);
   recipe.value = data;
 
   if (error) {
     alert(error.message);
   }
+  isFetching.value = false;
 });
 </script>
 
 <template>
   <div class="overflow-auto">
     <Navbar class="sticky top-0 bg-light-background" />
-    <div class="my-4 px-4 md:px-8">
+    <div class="my-4 px-4 md:px-8" v-if="!isFetching">
       <Recipe :recipe="recipe[0]" v-if="recipe[0]" />
       <div v-else class="flex flex-col items-center justify-center">
         <IconNothingFound class="max-h-96" />
@@ -37,5 +41,6 @@ onBeforeMount(async () => {
         </RouterLink>
       </div>
     </div>
+    <IconSpinner v-else class="m-auto mt-4 !h-12 !w-12 fill-light-text" />
   </div>
 </template>
