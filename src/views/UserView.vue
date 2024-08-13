@@ -6,20 +6,54 @@ import { RouterLink } from 'vue-router';
 import Navbar from '@/components/Navbar.vue';
 import RecipeCard from '@/components/RecipeCard.vue';
 import IconNoRecipes from '@/components/icons/IconNoRecipes.vue';
+import Pagination from '@/components/Pagination.vue';
+import IconSpinner from '@/components/icons/IconSpinner.vue';
 
 const fetchedRecipes = ref([]);
+const currentPage = ref(0);
+const isFetching = ref(false);
 
-const fetchRecipes = async () => {
-  let { data: recipes, error } = await supabase.from('recipes').select('*');
-  fetchedRecipes.value = recipes;
+const getPagination = (page, size) => {
+  const limit = size ? +size : 5;
+  const from = page ? page * limit : 0;
+  const to = page ? from + size - 1 : size - 1;
+
+  return { from, to };
+};
+
+const getNextPage = () => {
+  currentPage.value += 1;
+  fetchRecipes(currentPage.value);
+};
+
+const getPreviousPage = () => {
+  if (currentPage.value > 0) {
+    currentPage.value -= 1;
+    fetchRecipes(currentPage.value);
+  }
+};
+
+const fetchRecipes = async (page) => {
+  isFetching.value = true;
+  const { from, to } = getPagination(page, 20);
+  let { data: recipes, error } = await supabase.from('recipes').select('*').range(from, to);
+
+  if (recipes.length === 0) {
+    isFetching.value = false;
+    currentPage.value -= 1;
+    return;
+  } else {
+    fetchedRecipes.value = recipes;
+  }
 
   if (error) {
     alert(error.message);
   }
+  isFetching.value = false;
 };
 
 onBeforeMount(() => {
-  fetchRecipes();
+  fetchRecipes(currentPage.value);
 });
 </script>
 
@@ -35,19 +69,28 @@ onBeforeMount(() => {
           Add new recipe
         </button>
       </RouterLink>
-      <div class="grid h-full w-full grid-cols-4 gap-4" v-if="fetchedRecipes.length !== 0">
-        <div
-          v-for="recipe in fetchedRecipes"
-          :key="recipe.id"
-          class="col-span-4 md:col-span-2 lg:col-span-1"
-        >
-          <RecipeCard :recipe="recipe" />
+      <div v-if="!isFetching">
+        <div class="grid h-full w-full grid-cols-4 gap-4" v-if="fetchedRecipes.length !== 0">
+          <div
+            v-for="recipe in fetchedRecipes"
+            :key="recipe.id"
+            class="col-span-4 md:col-span-2 lg:col-span-1"
+          >
+            <RecipeCard :recipe="recipe" />
+          </div>
         </div>
+        <div v-else class="flex flex-col items-center justify-center">
+          <IconNoRecipes class="max-h-96" />
+          <p class="text-2xl">There's no recipes to show</p>
+        </div>
+        <Pagination
+          v-if="fetchedRecipes.length !== 0"
+          @next-page="getNextPage()"
+          @previous-page="getPreviousPage()"
+          class="mt-4"
+        />
       </div>
-      <div v-else class="flex flex-col items-center justify-center">
-        <IconNoRecipes class="max-h-96" />
-        <p class="text-2xl">There's no recipes to show</p>
-      </div>
+      <IconSpinner v-else class="m-auto mt-4 !h-12 !w-12 fill-light-text" />
     </div>
   </div>
 </template>
