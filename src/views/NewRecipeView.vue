@@ -212,7 +212,7 @@ const addRecipe = async () => {
 </script>
 
 <template>
-  <div class="h-screen w-screen overflow-auto">
+  <div>
     <div class="my-4 px-4 md:px-8">
       <h3 class="mb-4 text-2xl font-medium" v-if="!showPreview">
         Import recipe using it's url or create your own

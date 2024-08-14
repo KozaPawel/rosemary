@@ -74,11 +74,11 @@ onBeforeMount(async () => {
 </script>
 
 <template>
-  <div class="h-screen w-screen overflow-auto">
+  <div>
     <div class="my-4 px-4 md:px-8" v-if="!isFetching">
       <button
         @click="router.push(`/recipe/${recipeId}`)"
-        class="flex items-center gap-1 p-2 hover:rounded-md hover:bg-light-text/10"
+        class="mb-2 flex items-center gap-1 p-2 hover:rounded-md hover:bg-light-text/10 md:mb-0"
       >
         <IconArrowLeft class="size-5" />
         <p class="font-normal">Back</p>

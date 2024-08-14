@@ -57,7 +57,7 @@ onBeforeMount(() => {
 </script>
 
 <template>
-  <div class="overflow-auto">
+  <div>
     <div class="p-4 md:px-8">
       <h3 class="mb-2 text-2xl font-medium">Your recipes</h3>
       <RouterLink to="/new-recipe">

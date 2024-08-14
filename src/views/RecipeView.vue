@@ -42,7 +42,7 @@ onBeforeMount(async () => {
 </script>
 
 <template>
-  <div class="overflow-auto">
+  <div>
     <div class="mt-4 flex flex-wrap justify-center gap-2" v-if="recipe && !isFetching">
       <EditButton @edit-recipe="router.push(`/edit/${recipeId}`)" />
       <PrintButton :recipe-title="`${recipe.title}`" :content="printContentRef" />
