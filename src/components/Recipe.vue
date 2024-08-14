@@ -38,7 +38,7 @@ const formattedTime = (time) => {
     <a
       :href="recipeUrl"
       target="_blank"
-      class="w-fit font-semibold text-light-green-500 hover:underline"
+      class="w-fit break-all font-semibold text-light-green-500 hover:underline"
       v-if="recipeUrl"
     >
       {{ recipeUrl }}

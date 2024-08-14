@@ -64,7 +64,7 @@ onBeforeMount(() => {
       <h3 class="mb-2 text-2xl font-medium">Your recipes</h3>
       <RouterLink to="/new-recipe">
         <button
-          class="mb-2 w-fit rounded-md bg-light-green-500 px-3 py-1 font-semibold text-light-background hover:bg-light-green-600"
+          class="mb-3 w-fit rounded-md bg-light-green-500 px-3 py-1 font-semibold text-light-background hover:bg-light-green-600"
         >
           Add new recipe
         </button>
