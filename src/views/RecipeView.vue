@@ -9,12 +9,14 @@ import IconNothingFound from '@/components/icons/IconNothingFound.vue';
 import IconSpinner from '@/components/icons/IconSpinner.vue';
 import DeleteDialog from '@/components/DeleteDialog.vue';
 import EditButton from '@/components/EditButton.vue';
+import PrintButton from '@/components/PrintButton.vue';
 
 const router = useRouter();
 const recipeId = useRoute().params.id;
 const recipe = ref({});
 const isFetching = ref(false);
 const isDeleting = ref(false);
+const printContentRef = ref();
 
 const deleteRecipe = async () => {
   isDeleting.value = true;
@@ -43,12 +45,15 @@ onBeforeMount(async () => {
 <template>
   <div class="overflow-auto">
     <Navbar class="sticky top-0 bg-light-background" />
-    <div class="mt-4 flex gap-2 md:justify-center" v-if="recipe && !isFetching">
+    <div class="mt-4 flex flex-wrap justify-center gap-2" v-if="recipe && !isFetching">
       <EditButton @edit-recipe="router.push(`/edit/${recipeId}`)" />
+      <PrintButton :recipe-title="`${recipe.title}`" :content="printContentRef" />
       <DeleteDialog @delete-confirmed="deleteRecipe()" :is-deleting="isDeleting" />
     </div>
     <div class="my-4 px-4 md:px-8" v-if="!isFetching">
-      <Recipe :recipe="recipe" v-if="recipe" />
+      <div v-if="recipe" ref="printContentRef">
+        <Recipe :recipe="recipe" />
+      </div>
       <div v-else class="flex flex-col items-center justify-center">
         <IconNothingFound class="max-h-96" />
         <p class="text-2xl">There's no recipe to show</p>
