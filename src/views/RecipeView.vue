@@ -3,7 +3,6 @@ import { onBeforeMount, ref } from 'vue';
 import { useRoute, useRouter, RouterLink } from 'vue-router';
 import { supabase } from '@/supabase';
 
-import Navbar from '@/components/Navbar.vue';
 import Recipe from '@/components/Recipe.vue';
 import IconNothingFound from '@/components/icons/IconNothingFound.vue';
 import IconSpinner from '@/components/icons/IconSpinner.vue';
@@ -44,7 +43,6 @@ onBeforeMount(async () => {
 
 <template>
   <div class="overflow-auto">
-    <Navbar class="sticky top-0 bg-light-background" />
     <div class="mt-4 flex flex-wrap justify-center gap-2" v-if="recipe && !isFetching">
       <EditButton @edit-recipe="router.push(`/edit/${recipeId}`)" />
       <PrintButton :recipe-title="`${recipe.title}`" :content="printContentRef" />

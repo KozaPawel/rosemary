@@ -4,11 +4,9 @@ import { useRouter } from 'vue-router';
 import { supabase } from '@/supabase';
 import * as cheerio from 'cheerio';
 
-import Navbar from '@/components/Navbar.vue';
 import Recipe from '@/components/Recipe.vue';
 import LabeledInput from '@/components/LabeledInput.vue';
 import IconSpinner from '@/components/icons/IconSpinner.vue';
-import ErrorMessage from '@/components/ErrorMessage.vue';
 import RecipeForm from '@/components/RecipeForm.vue';
 
 const url = ref('');
@@ -215,7 +213,6 @@ const addRecipe = async () => {
 
 <template>
   <div class="h-screen w-screen overflow-auto">
-    <Navbar class="sticky top-0 bg-light-background" />
     <div class="my-4 px-4 md:px-8">
       <h3 class="mb-4 text-2xl font-medium" v-if="!showPreview">
         Import recipe using it's url or create your own

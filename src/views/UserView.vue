@@ -3,7 +3,6 @@ import { onBeforeMount, ref } from 'vue';
 import { supabase } from '@/supabase';
 import { RouterLink } from 'vue-router';
 
-import Navbar from '@/components/Navbar.vue';
 import RecipeCard from '@/components/RecipeCard.vue';
 import IconNoRecipes from '@/components/icons/IconNoRecipes.vue';
 import Pagination from '@/components/Pagination.vue';
@@ -59,7 +58,6 @@ onBeforeMount(() => {
 
 <template>
   <div class="overflow-auto">
-    <Navbar class="sticky top-0 h-fit bg-light-background" />
     <div class="p-4 md:px-8">
       <h3 class="mb-2 text-2xl font-medium">Your recipes</h3>
       <RouterLink to="/new-recipe">

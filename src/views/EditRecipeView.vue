@@ -3,7 +3,6 @@ import { onBeforeMount, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { supabase } from '@/supabase';
 
-import Navbar from '@/components/Navbar.vue';
 import Recipe from '@/components/Recipe.vue';
 import IconSpinner from '@/components/icons/IconSpinner.vue';
 import RecipeForm from '@/components/RecipeForm.vue';
@@ -76,7 +75,6 @@ onBeforeMount(async () => {
 
 <template>
   <div class="h-screen w-screen overflow-auto">
-    <Navbar class="sticky top-0 bg-light-background" />
     <div class="my-4 px-4 md:px-8" v-if="!isFetching">
       <button
         @click="router.push(`/recipe/${recipeId}`)"
