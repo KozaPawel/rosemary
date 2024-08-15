@@ -20,24 +20,27 @@ const showError = ref(false);
 const isSigningUp = ref(false);
 
 const signUp = async () => {
-  isSigningUp.value = true;
-  errorMessage.value = '';
-  showError.value = false;
+  try {
+    isSigningUp.value = true;
+    errorMessage.value = '';
+    showError.value = false;
 
-  const { error } = await supabase.auth.signUp({
-    email: email.value,
-    password: password.value,
-  });
+    const { error } = await supabase.auth.signUp({
+      email: email.value,
+      password: password.value,
+    });
 
-  if (error) {
+    if (error) {
+      throw error;
+    }
+
+    router.push('user');
+  } catch (error) {
     errorMessage.value = error.message;
     showError.value = true;
+  } finally {
     isSigningUp.value = false;
-    return;
   }
-
-  router.push('user');
-  isSigningUp.value = false;
 };
 
 const changePasswordType = () => {

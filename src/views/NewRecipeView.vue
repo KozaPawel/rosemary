@@ -19,15 +19,24 @@ const isSaving = ref(false);
 const router = useRouter();
 
 const fetchRecipe = async () => {
-  isImporting.value = true;
-  const { data, error } = await supabase.functions.invoke('scrap', {
-    body: { url: url.value },
-  });
+  try {
+    isImporting.value = true;
+    const { data, error } = await supabase.functions.invoke('scrap', {
+      body: { url: url.value },
+    });
 
-  fetchedRecipe.value = data;
+    if (error) {
+      throw error;
+    }
 
-  getRecipeData();
-  isImporting.value = false;
+    fetchedRecipe.value = data;
+
+    getRecipeData();
+  } catch (error) {
+    alert(error.message);
+  } finally {
+    isImporting.value = false;
+  }
 };
 
 const getRecipeData = async () => {
@@ -180,34 +189,36 @@ const checkIfInstruction = (item) => {
 };
 
 const addRecipe = async () => {
-  isSaving.value = true;
-  showError.value = false;
-  const { data, error } = await supabase
-    .from('recipes')
-    .insert([
-      {
-        title: cleanRecipe.value.title,
-        description: cleanRecipe.value.description,
-        servings: cleanRecipe.value.servings,
-        cook_time: cleanRecipe.value.cookTime,
-        prep_time: cleanRecipe.value.prepTime,
-        ingredients: cleanRecipe.value.ingredients,
-        instructions: cleanRecipe.value.instructions,
-        recipe_url: cleanRecipe.value.recipeUrl,
-        image: cleanRecipe.value.image,
-      },
-    ])
-    .select();
+  try {
+    isSaving.value = true;
+    showError.value = false;
+    const { data, error } = await supabase
+      .from('recipes')
+      .insert([
+        {
+          title: cleanRecipe.value.title,
+          description: cleanRecipe.value.description,
+          servings: cleanRecipe.value.servings,
+          cook_time: cleanRecipe.value.cookTime,
+          prep_time: cleanRecipe.value.prepTime,
+          ingredients: cleanRecipe.value.ingredients,
+          instructions: cleanRecipe.value.instructions,
+          recipe_url: cleanRecipe.value.recipeUrl,
+          image: cleanRecipe.value.image,
+        },
+      ])
+      .select();
 
-  if (error) {
-    alert(error.message);
+    if (error) {
+      throw error;
+    }
+
+    router.push(`/recipe/${data[0].id}`);
+  } catch (error) {
     showError.value = true;
+  } finally {
     isSaving.value = false;
-    return;
   }
-
-  router.push(`/recipe/${data[0].id}`);
-  isSaving.value = false;
 };
 </script>
 

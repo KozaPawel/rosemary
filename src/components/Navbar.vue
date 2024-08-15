@@ -8,16 +8,21 @@ const router = useRouter();
 const isSigningOut = ref(false);
 
 const signOut = async () => {
-  isSigningOut.value = true;
-  const { error } = await supabase.auth.signOut();
+  try {
+    isSigningOut.value = true;
+    const { error } = await supabase.auth.signOut();
 
-  if (error) {
+    if (error) {
+      isSigningOut.value = false;
+      throw error;
+    }
+
+    router.push('/login');
+  } catch (error) {
+    alert(error.message);
+  } finally {
     isSigningOut.value = false;
-    throw error;
   }
-
-  router.push('login');
-  isSigningOut.value = false;
 };
 </script>
 

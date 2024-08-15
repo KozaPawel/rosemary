@@ -33,22 +33,27 @@ const getPreviousPage = () => {
 };
 
 const fetchRecipes = async (page) => {
-  isFetching.value = true;
-  const { from, to } = getPagination(page, 20);
-  let { data: recipes, error } = await supabase.from('recipes').select('*').range(from, to);
+  try {
+    isFetching.value = true;
+    const { from, to } = getPagination(page, 20);
+    let { data: recipes, error } = await supabase.from('recipes').select('*').range(from, to);
 
-  if (recipes.length === 0) {
-    isFetching.value = false;
-    currentPage.value -= 1;
-    return;
-  } else {
-    fetchedRecipes.value = recipes;
-  }
+    if (recipes.length === 0) {
+      isFetching.value = false;
+      currentPage.value -= 1;
+      return;
+    } else {
+      fetchedRecipes.value = recipes;
+    }
 
-  if (error) {
+    if (error) {
+      throw error;
+    }
+  } catch (error) {
     alert(error.message);
+  } finally {
+    isFetching.value = false;
   }
-  isFetching.value = false;
 };
 
 onBeforeMount(() => {

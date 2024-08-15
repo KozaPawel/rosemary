@@ -18,26 +18,40 @@ const isDeleting = ref(false);
 const printContentRef = ref();
 
 const deleteRecipe = async () => {
-  isDeleting.value = true;
-  const { error } = await supabase.from('recipes').delete().eq('id', recipeId);
+  try {
+    isDeleting.value = true;
+    const { error } = await supabase.from('recipes').delete().eq('id', recipeId);
 
-  if (error) {
+    if (error) {
+      throw error;
+    }
+
+    router.push('/user');
+  } catch (error) {
     alert(error.message);
+  } finally {
+    isDeleting.value = false;
   }
-
-  router.push('/user');
-  isDeleting.value = false;
 };
 
-onBeforeMount(async () => {
-  isFetching.value = true;
-  let { data, error } = await supabase.from('recipes').select('*').eq('id', recipeId);
-  recipe.value = data[0];
+const fetchRecipe = async () => {
+  try {
+    isFetching.value = true;
+    let { data, error } = await supabase.from('recipes').select('*').eq('id', recipeId);
+    recipe.value = data[0];
 
-  if (error) {
+    if (error) {
+      throw error;
+    }
+  } catch (error) {
     alert(error.message);
+  } finally {
+    isFetching.value = false;
   }
-  isFetching.value = false;
+};
+
+onBeforeMount(() => {
+  fetchRecipe();
 });
 </script>
 

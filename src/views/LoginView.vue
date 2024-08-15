@@ -20,24 +20,27 @@ const showError = ref(false);
 const isLoggingIn = ref(false);
 
 const signInWithPassword = async () => {
-  isLoggingIn.value = true;
-  errorMessage.value = '';
-  showError.value = false;
+  try {
+    isLoggingIn.value = true;
+    errorMessage.value = '';
+    showError.value = false;
 
-  const { error } = await supabase.auth.signInWithPassword({
-    email: email.value,
-    password: password.value,
-  });
+    const { error } = await supabase.auth.signInWithPassword({
+      email: email.value,
+      password: password.value,
+    });
 
-  if (error) {
+    if (error) {
+      throw error;
+    }
+
+    router.push('user');
+  } catch (error) {
     errorMessage.value = error.message;
     showError.value = true;
+  } finally {
     isLoggingIn.value = false;
-    return;
   }
-
-  router.push('user');
-  isLoggingIn.value = false;
 };
 
 const changePasswordType = () => {

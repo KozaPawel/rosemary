@@ -17,59 +17,70 @@ const router = useRouter();
 const isFetching = ref(false);
 
 const updateRecipe = async () => {
-  isUpdating.value = true;
-  const { error } = await supabase
-    .from('recipes')
-    .update({
-      title: fetchedRecipe.value.title,
-      description: fetchedRecipe.value.description,
-      image: fetchedRecipe.value.image,
-      servings: fetchedRecipe.value.servings,
-      prep_time: fetchedRecipe.value.prepTime,
-      cook_time: fetchedRecipe.value.cookTime,
-      ingredients: fetchedRecipe.value.ingredients,
-      instructions: fetchedRecipe.value.instructions,
-      recipe_url: fetchedRecipe.value.recipeUrl,
-    })
-    .eq('id', recipeId);
+  try {
+    isUpdating.value = true;
+    const { error } = await supabase
+      .from('recipes')
+      .update({
+        title: fetchedRecipe.value.title,
+        description: fetchedRecipe.value.description,
+        image: fetchedRecipe.value.image,
+        servings: fetchedRecipe.value.servings,
+        prep_time: fetchedRecipe.value.prepTime,
+        cook_time: fetchedRecipe.value.cookTime,
+        ingredients: fetchedRecipe.value.ingredients,
+        instructions: fetchedRecipe.value.instructions,
+        recipe_url: fetchedRecipe.value.recipeUrl,
+      })
+      .eq('id', recipeId);
 
-  if (error) {
+    if (error) {
+      throw error;
+    }
+
+    router.push(`/recipe/${recipeId}`);
+  } catch (error) {
+    showError.value = true;
+  } finally {
     isUpdating.value = false;
-    alert(error.message);
-    return;
   }
-
-  router.push(`/recipe/${recipeId}`);
-  isUpdating.value = false;
 };
 
-onBeforeMount(async () => {
-  isFetching.value = true;
+const fetchRecipe = async () => {
+  try {
+    isFetching.value = true;
 
-  let { data, error } = await supabase.from('recipes').select('*').eq('id', recipeId).select();
+    let { data, error } = await supabase.from('recipes').select('*').eq('id', recipeId).select();
 
-  if (data.length === 0) {
-    router.push('/user');
-    return;
-  }
+    if (data.length === 0) {
+      router.push('/user');
+      return;
+    }
 
-  fetchedRecipe.value = {
-    title: data[0].title,
-    description: data[0].description,
-    image: data[0].image,
-    servings: data[0].servings,
-    prepTime: data[0].prep_time,
-    cookTime: data[0].cook_time,
-    ingredients: data[0].ingredients,
-    instructions: data[0].instructions,
-    recipeUrl: data[0].recipe_url,
-  };
+    fetchedRecipe.value = {
+      title: data[0].title,
+      description: data[0].description,
+      image: data[0].image,
+      servings: data[0].servings,
+      prepTime: data[0].prep_time,
+      cookTime: data[0].cook_time,
+      ingredients: data[0].ingredients,
+      instructions: data[0].instructions,
+      recipeUrl: data[0].recipe_url,
+    };
 
-  if (error) {
+    if (error) {
+      throw error;
+    }
+  } catch (error) {
     alert(error.message);
+  } finally {
+    isFetching.value = false;
   }
+};
 
-  isFetching.value = false;
+onBeforeMount(() => {
+  fetchRecipe();
 });
 </script>
 
