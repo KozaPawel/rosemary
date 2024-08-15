@@ -37,8 +37,8 @@ const deleteRecipe = async () => {
 const fetchRecipe = async () => {
   try {
     isFetching.value = true;
-    let { data, error } = await supabase.from('recipes').select('*').eq('id', recipeId);
-    recipe.value = data[0];
+    let { data, error } = await supabase.from('recipes').select('*').eq('id', recipeId).single();
+    recipe.value = data;
 
     if (error) {
       throw error;

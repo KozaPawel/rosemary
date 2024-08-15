@@ -207,13 +207,14 @@ const addRecipe = async () => {
           image: cleanRecipe.value.image,
         },
       ])
-      .select();
+      .select()
+      .single();
 
     if (error) {
       throw error;
     }
 
-    router.push(`/recipe/${data[0].id}`);
+    router.push(`/recipe/${data.id}`);
   } catch (error) {
     showError.value = true;
   } finally {

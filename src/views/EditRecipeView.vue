@@ -50,7 +50,12 @@ const fetchRecipe = async () => {
   try {
     isFetching.value = true;
 
-    let { data, error } = await supabase.from('recipes').select('*').eq('id', recipeId).select();
+    let { data, error } = await supabase
+      .from('recipes')
+      .select('*')
+      .eq('id', recipeId)
+      .select()
+      .single();
 
     if (data.length === 0) {
       router.push('/user');
@@ -58,15 +63,15 @@ const fetchRecipe = async () => {
     }
 
     fetchedRecipe.value = {
-      title: data[0].title,
-      description: data[0].description,
-      image: data[0].image,
-      servings: data[0].servings,
-      prepTime: data[0].prep_time,
-      cookTime: data[0].cook_time,
-      ingredients: data[0].ingredients,
-      instructions: data[0].instructions,
-      recipeUrl: data[0].recipe_url,
+      title: data.title,
+      description: data.description,
+      image: data.image,
+      servings: data.servings,
+      prepTime: data.prep_time,
+      cookTime: data.cook_time,
+      ingredients: data.ingredients,
+      instructions: data.instructions,
+      recipeUrl: data.recipe_url,
     };
 
     if (error) {
