@@ -20,27 +20,37 @@ const showError = ref(false);
 const isSigningUp = ref(false);
 
 const signUp = async () => {
-  try {
-    isSigningUp.value = true;
-    errorMessage.value = '';
-    showError.value = false;
+  isSigningUp.value = true;
+  errorMessage.value = '';
+  showError.value = false;
 
-    const { error } = await supabase.auth.signUp({
-      email: email.value,
-      password: password.value,
-    });
+  if (validateEmail()) {
+    try {
+      const { error } = await supabase.auth.signUp({
+        email: email.value,
+        password: password.value,
+      });
 
-    if (error) {
-      throw error;
+      if (error) {
+        throw error;
+      }
+
+      router.push('user');
+    } catch (error) {
+      errorMessage.value = error.message;
+      showError.value = true;
     }
-
-    router.push('user');
-  } catch (error) {
-    errorMessage.value = error.message;
+  } else {
     showError.value = true;
-  } finally {
-    isSigningUp.value = false;
+    errorMessage.value = 'Enter a valid email address';
   }
+
+  isSigningUp.value = false;
+};
+
+const validateEmail = () => {
+  const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+  return emailPattern.test(email.value);
 };
 
 const changePasswordType = () => {
