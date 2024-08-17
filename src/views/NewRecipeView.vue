@@ -95,11 +95,6 @@ const getRecipeData = async () => {
     });
   }
 
-  if (!cookTime && prepTime.length > 0) {
-    cookTime = prepTime;
-    prepTime = '';
-  }
-
   if (ingredients.length === 0 || instructions.length === 0) {
     $('div')
       .find('ul, ol')
