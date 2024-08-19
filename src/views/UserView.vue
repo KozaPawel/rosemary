@@ -7,10 +7,38 @@ import RecipeCard from '@/components/RecipeCard.vue';
 import IconNoRecipes from '@/components/icons/IconNoRecipes.vue';
 import Pagination from '@/components/Pagination.vue';
 import IconSpinner from '@/components/icons/IconSpinner.vue';
+import LabeledInput from '@/components/LabeledInput.vue';
+import IconX from '@/components/icons/IconX.vue';
 
-const fetchedRecipes = ref([]);
+const recipes = ref([]);
 const currentPage = ref(0);
 const isFetching = ref(false);
+const searchQuery = ref('');
+
+const fetchRecipes = async (page) => {
+  let fetchedRecipes;
+  try {
+    isFetching.value = true;
+    const { from, to } = getPagination(page, 20);
+    let { data: recipes, error } = await supabase
+      .from('recipes')
+      .select('*')
+      .ilike('title', `%${searchQuery.value}%`)
+      .range(from, to);
+
+    if (error) {
+      throw error;
+    }
+
+    fetchedRecipes = recipes;
+  } catch (error) {
+    alert(error.message);
+  } finally {
+    isFetching.value = false;
+  }
+
+  return fetchedRecipes;
+};
 
 const getPagination = (page, size) => {
   const limit = size ? +size : 5;
@@ -20,44 +48,45 @@ const getPagination = (page, size) => {
   return { from, to };
 };
 
-const getNextPage = () => {
+const getNextPage = async () => {
   currentPage.value += 1;
-  fetchRecipes(currentPage.value);
+  let fetchedRecipes = await fetchRecipes(currentPage.value);
+  if (fetchedRecipes.length > 0) {
+    recipes.value = fetchedRecipes;
+  } else {
+    currentPage.value -= 1;
+  }
 };
 
-const getPreviousPage = () => {
+const getPreviousPage = async () => {
   if (currentPage.value > 0) {
     currentPage.value -= 1;
-    fetchRecipes(currentPage.value);
+    let fetchedRecipes = await fetchRecipes(currentPage.value);
+
+    if (fetchedRecipes.length > 0) {
+      recipes.value = fetchedRecipes;
+    }
   }
 };
 
-const fetchRecipes = async (page) => {
-  try {
-    isFetching.value = true;
-    const { from, to } = getPagination(page, 20);
-    let { data: recipes, error } = await supabase.from('recipes').select('*').range(from, to);
+const filterRecipes = async () => {
+  let fetchedRecipes;
+  if (searchQuery.value.length > 0) {
+    currentPage.value = 0;
+    fetchedRecipes = await fetchRecipes(0);
 
-    if (recipes.length === 0) {
-      isFetching.value = false;
-      currentPage.value -= 1;
-      return;
-    } else {
-      fetchedRecipes.value = recipes;
-    }
-
-    if (error) {
-      throw error;
-    }
-  } catch (error) {
-    alert(error.message);
-  } finally {
-    isFetching.value = false;
+    recipes.value = fetchedRecipes;
   }
 };
 
-onBeforeMount(() => {
-  fetchRecipes(currentPage.value);
+const clearFilters = async () => {
+  searchQuery.value = '';
+  currentPage.value = 0;
+  recipes.value = await fetchRecipes(currentPage.value);
+};
+
+onBeforeMount(async () => {
+  recipes.value = await fetchRecipes(currentPage.value);
 });
 </script>
 
@@ -72,10 +101,32 @@ onBeforeMount(() => {
           Add new recipe
         </button>
       </RouterLink>
+      <form @submit.prevent="filterRecipes()" class="mb-2 flex flex-wrap items-end gap-2">
+        <LabeledInput
+          v-model="searchQuery"
+          :id="'search'"
+          :label="'Search'"
+          :placeholder="'Recipe title..'"
+          class="w-full md:w-1/3 lg:w-1/4"
+        />
+        <button
+          type="submit"
+          class="w-fit rounded-md bg-light-text px-3 py-1 font-semibold text-light-background hover:bg-light-text/80"
+        >
+          Search
+        </button>
+        <button
+          @click.prevent="clearFilters()"
+          v-if="searchQuery.length > 0"
+          class="rounded-md bg-light-text px-1 py-1 font-semibold text-light-background hover:bg-light-text/80"
+        >
+          <IconX class="size-6 fill-light-background" />
+        </button>
+      </form>
       <div v-if="!isFetching">
-        <div class="grid h-full w-full grid-cols-4 gap-4" v-if="fetchedRecipes.length !== 0">
+        <div class="grid h-full w-full grid-cols-4 gap-4" v-if="recipes.length !== 0">
           <div
-            v-for="recipe in fetchedRecipes"
+            v-for="recipe in recipes"
             :key="recipe.id"
             class="col-span-4 md:col-span-2 lg:col-span-1"
           >
@@ -87,7 +138,7 @@ onBeforeMount(() => {
           <p class="text-2xl">There's no recipes to show</p>
         </div>
         <Pagination
-          v-if="fetchedRecipes.length !== 0"
+          v-if="recipes.length !== 0"
           @next-page="getNextPage()"
           @previous-page="getPreviousPage()"
           class="mt-4"
