@@ -1,8 +1,8 @@
 <script setup>
 import { computed } from 'vue';
 
-import LabeledInput from './LabeledInput.vue';
-import ErrorMessage from './ErrorMessage.vue';
+import LabeledInput from '@/components/LabeledInput.vue';
+import ErrorMessage from '@/components/ErrorMessage.vue';
 
 const props = defineProps({
   recipe: Object,

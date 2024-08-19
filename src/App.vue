@@ -1,7 +1,8 @@
 <script setup>
 import { RouterView, useRoute } from 'vue-router';
-import Navbar from '@/components/Navbar.vue';
 import Toast from 'primevue/toast';
+
+import Navbar from '@/components/Navbar.vue';
 
 const route = useRoute();
 

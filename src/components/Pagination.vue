@@ -1,6 +1,6 @@
 <script setup>
-import IconCaretLeft from './icons/IconCaretLeft.vue';
-import IconCaretRight from './icons/IconCaretRight.vue';
+import IconCaretLeft from '@/components/icons/IconCaretLeft.vue';
+import IconCaretRight from '@/components/icons/IconCaretRight.vue';
 
 defineEmits(['nextPage', 'previousPage']);
 </script>
