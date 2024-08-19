@@ -2,12 +2,14 @@
 import { onBeforeMount, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { supabase } from '@/supabase';
+import { useToast } from 'primevue/usetoast';
 
 import Recipe from '@/components/Recipe.vue';
 import IconSpinner from '@/components/icons/IconSpinner.vue';
 import RecipeForm from '@/components/RecipeForm.vue';
 import IconArrowLeft from '@/components/icons/IconArrowLeft.vue';
 
+const toast = useToast();
 const recipeId = useRoute().params.id;
 const fetchedRecipe = ref({});
 const showPreview = ref(false);
@@ -38,6 +40,13 @@ const updateRecipe = async () => {
       throw error;
     }
 
+    toast.add({
+      severity: 'success',
+      summary: 'Success',
+      detail: 'Recipe updated',
+      life: 3000,
+    });
+
     router.push(`/recipe/${recipeId}`);
   } catch (error) {
     showError.value = true;
@@ -57,7 +66,7 @@ const fetchRecipe = async () => {
       .select()
       .single();
 
-    if (data.length === 0) {
+    if (data === null) {
       router.push('/user');
       return;
     }

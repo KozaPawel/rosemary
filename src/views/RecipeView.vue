@@ -26,7 +26,7 @@ const deleteRecipe = async () => {
       throw error;
     }
 
-    router.push('/user');
+    router.push(`/delete/${recipeId}`);
   } catch (error) {
     alert(error.message);
   } finally {

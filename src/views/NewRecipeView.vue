@@ -2,6 +2,7 @@
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { supabase } from '@/supabase';
+import { useToast } from 'primevue/usetoast';
 import * as cheerio from 'cheerio';
 
 import Recipe from '@/components/Recipe.vue';
@@ -9,6 +10,7 @@ import LabeledInput from '@/components/LabeledInput.vue';
 import IconSpinner from '@/components/icons/IconSpinner.vue';
 import RecipeForm from '@/components/RecipeForm.vue';
 
+const toast = useToast();
 const url = ref('');
 const fetchedRecipe = ref('');
 const cleanRecipe = ref({});
@@ -209,6 +211,12 @@ const addRecipe = async () => {
       throw error;
     }
 
+    toast.add({
+      severity: 'success',
+      summary: 'Success',
+      detail: 'New recipe added',
+      life: 3000,
+    });
     router.push(`/recipe/${data.id}`);
   } catch (error) {
     showError.value = true;

@@ -2,6 +2,7 @@
 import { onBeforeMount, ref } from 'vue';
 import { supabase } from '@/supabase';
 import { RouterLink } from 'vue-router';
+import { useToast } from 'primevue/usetoast';
 
 import RecipeCard from '@/components/RecipeCard.vue';
 import IconNoRecipes from '@/components/icons/IconNoRecipes.vue';
@@ -10,6 +11,7 @@ import IconSpinner from '@/components/icons/IconSpinner.vue';
 import LabeledInput from '@/components/LabeledInput.vue';
 import IconX from '@/components/icons/IconX.vue';
 
+const toast = useToast();
 const recipes = ref([]);
 const currentPage = ref(0);
 const isFetching = ref(false);
@@ -54,6 +56,13 @@ const getNextPage = async () => {
   if (fetchedRecipes.length > 0) {
     recipes.value = fetchedRecipes;
   } else {
+    toast.add({
+      severity: 'info',
+      summary: 'Oops',
+      detail: 'There are no more recipes',
+      life: 3000,
+    });
+
     currentPage.value -= 1;
   }
 };

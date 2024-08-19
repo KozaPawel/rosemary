@@ -7,6 +7,7 @@ import UserView from '@/views/UserView.vue';
 import NewRecipeView from '@/views/NewRecipeView.vue';
 import RecipeView from '@/views/RecipeView.vue';
 import EditRecipeView from '@/views/EditRecipeView.vue';
+import DeleteRecipeView from '@/views/DeleteRecipeView.vue';
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -39,6 +40,14 @@ const router = createRouter({
       path: '/edit/:id',
       name: 'editRecipe',
       component: EditRecipeView,
+      meta: {
+        auth: true,
+      },
+    },
+    {
+      path: '/delete/:id',
+      name: 'deleteRecipe',
+      component: DeleteRecipeView,
       meta: {
         auth: true,
       },
