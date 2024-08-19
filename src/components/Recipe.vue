@@ -1,20 +1,6 @@
 <script setup>
-import { computed } from 'vue';
-
 const props = defineProps({
   recipe: Object,
-});
-
-const cookTime = computed(() => {
-  return props.recipe.cookTime || props.recipe.cook_time;
-});
-
-const prepTime = computed(() => {
-  return props.recipe.prepTime || props.recipe.prep_time;
-});
-
-const recipeUrl = computed(() => {
-  return props.recipe.recipeUrl || props.recipe.recipe_url;
 });
 
 const formattedTime = (time) => {
@@ -36,26 +22,26 @@ const formattedTime = (time) => {
     <hr class="my-4 h-px border-0 bg-gray-300" v-if="props.recipe.title" />
     <h3 class="text-xl" v-if="props.recipe.description">{{ props.recipe.description }}</h3>
     <a
-      :href="recipeUrl"
+      :href="props.recipe.recipeUrl"
       target="_blank"
       class="w-fit break-all font-semibold text-light-green-500 hover:underline"
-      v-if="recipeUrl"
+      v-if="props.recipe.recipeUrl"
     >
-      {{ recipeUrl }}
+      {{ props.recipe.recipeUrl }}
     </a>
     <div
       class="flex flex-col gap-2 md:flex-row md:gap-12"
-      v-if="props.recipe.servings || prepTime || cookTime"
+      v-if="props.recipe.servings || props.recipe.prepTime || props.recipe.cookTime"
     >
       <p v-if="props.recipe.servings">
         <text class="font-semibold">Servings:</text> {{ props.recipe.servings }}
       </p>
-      <p v-if="prepTime">
-        <text class="font-semibold">Prep time:</text> {{ formattedTime(prepTime) }}
+      <p v-if="props.recipe.prepTime">
+        <text class="font-semibold">Prep time:</text> {{ formattedTime(props.recipe.prepTime) }}
       </p>
-      <p v-if="cookTime">
+      <p v-if="props.recipe.cookTime">
         <text class="font-semibold">Cook time:</text>
-        {{ formattedTime(cookTime) }}
+        {{ formattedTime(props.recipe.cookTime) }}
       </p>
     </div>
     <div v-if="props.recipe.ingredients">

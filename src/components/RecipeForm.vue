@@ -29,16 +29,16 @@ const recipe = computed(() => {
       <LabeledInput v-model="recipe.servings" :id="'servings'" :label="'Servings'" />
       <div class="flex w-full flex-col gap-2 md:flex-row">
         <LabeledInput
-          v-model="recipe.cookTime"
-          :id="'ctime'"
-          :label="'Cook time (minutes)'"
+          v-model="recipe.prepTime"
+          :id="'ptime'"
+          :label="'Prep time (minutes)'"
           :type="'number'"
           class="w-full"
         />
         <LabeledInput
-          v-model="recipe.prepTime"
-          :id="'ptime'"
-          :label="'Prep time (minutes)'"
+          v-model="recipe.cookTime"
+          :id="'ctime'"
+          :label="'Cook time (minutes)'"
           :type="'number'"
           class="w-full"
         />

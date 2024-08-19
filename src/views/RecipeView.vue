@@ -38,7 +38,18 @@ const fetchRecipe = async () => {
   try {
     isFetching.value = true;
     let { data, error } = await supabase.from('recipes').select('*').eq('id', recipeId).single();
-    recipe.value = data;
+
+    recipe.value = {
+      title: data.title,
+      description: data.description,
+      image: data.image,
+      servings: data.servings,
+      prepTime: data.prep_time,
+      cookTime: data.cook_time,
+      ingredients: data.ingredients,
+      instructions: data.instructions,
+      recipeUrl: data.recipe_url,
+    };
 
     if (error) {
       throw error;

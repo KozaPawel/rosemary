@@ -31,7 +31,7 @@ defineEmits(['signOut']);
       :draggable="false"
       class="!bg-light-background !text-light-text"
     >
-      <span class="mb-2 block text-gray-500">You will be Signed Out from your account.</span>
+      <span class="mb-2 block text-gray-500">You will be signed out from your account.</span>
       <div class="flex gap-2">
         <button
           @click="visible = false"
