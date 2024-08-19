@@ -1,7 +1,7 @@
 <script setup>
 import { ref } from 'vue';
-
 import Dialog from 'primevue/dialog';
+
 import IconSpinner from '@/components/icons/IconSpinner.vue';
 
 const props = defineProps({
