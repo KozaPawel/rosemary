@@ -1,6 +1,9 @@
 # Rosemary
 
-This web application allows users to save recipes from different websites in one place.
+This web application allows users to scrape recipes from different websites and store them in one place.
+
+## Demo
+https://github.com/user-attachments/assets/e7c3d292-f000-401c-af50-ed1d830f3527
 
 ## Features
 
