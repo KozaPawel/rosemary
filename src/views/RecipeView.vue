@@ -68,14 +68,16 @@ onBeforeMount(() => {
 
 <template>
   <div>
-    <div class="mt-4 flex flex-wrap justify-center gap-2" v-if="recipe && !isFetching">
-      <EditButton @edit-recipe="router.push(`/edit/${recipeId}`)" />
-      <PrintButton :recipe-title="`${recipe.title}`" :content="printContentRef" />
-      <DeleteDialog @delete-confirmed="deleteRecipe()" :is-deleting="isDeleting" />
-    </div>
     <div class="my-4 px-4 md:px-8" v-if="!isFetching">
-      <div v-if="recipe" ref="printContentRef">
-        <Recipe :recipe="recipe" />
+      <div v-if="Object.keys(recipe).length > 0">
+        <div class="mb-4 flex flex-wrap justify-center gap-2">
+          <EditButton @edit-recipe="router.push(`/edit/${recipeId}`)" />
+          <PrintButton :recipe-title="`${recipe.title}`" :content="printContentRef" />
+          <DeleteDialog @delete-confirmed="deleteRecipe()" :is-deleting="isDeleting" />
+        </div>
+        <div ref="printContentRef">
+          <Recipe :recipe="recipe" />
+        </div>
       </div>
       <div v-else class="flex flex-col items-center justify-center">
         <IconNothingFound class="max-h-96" />
