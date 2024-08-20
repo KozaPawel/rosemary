@@ -110,7 +110,11 @@ onBeforeMount(async () => {
           Add new recipe
         </button>
       </RouterLink>
-      <form @submit.prevent="filterRecipes()" class="mb-2 flex flex-wrap items-end gap-2">
+      <form
+        v-if="recipes.length > 0"
+        @submit.prevent="filterRecipes()"
+        class="mb-2 flex flex-wrap items-end gap-2"
+      >
         <LabeledInput
           v-model="searchQuery"
           :id="'search'"
