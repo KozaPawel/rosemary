@@ -3,6 +3,7 @@
 This web application allows users to scrape recipes from different websites and store them in one place.
 
 ## Demo
+
 https://github.com/user-attachments/assets/e7c3d292-f000-401c-af50-ed1d830f3527
 
 ## Features
@@ -79,7 +80,7 @@ create policy "Enable delete for users based on user_id" on recipes
   as permissive for delete using ((SELECT auth.uid() AS uid) = user_id);
 ```
 
-6. Add edge function
+6. Add edge function (name it scrape)
 
 ```ts
 import 'jsr:@supabase/functions-js/edge-runtime.d.ts';

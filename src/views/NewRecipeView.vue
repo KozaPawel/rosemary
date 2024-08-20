@@ -23,7 +23,7 @@ const router = useRouter();
 const fetchRecipe = async () => {
   try {
     isImporting.value = true;
-    const { data, error } = await supabase.functions.invoke('scrap', {
+    const { data, error } = await supabase.functions.invoke('scrape', {
       body: { url: url.value },
     });
 
